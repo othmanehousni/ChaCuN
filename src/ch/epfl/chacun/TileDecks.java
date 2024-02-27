@@ -48,8 +48,11 @@ final public record TileDecks(List<Tile> startTiles, List<Tile> normalTiles, Lis
 
     public TileDecks withTopTileDrawnUntil(Tile.Kind kind, Predicate<Tile> predicate){
 
-        TileDecks newTileDecks= new TileDecks(startTiles,normalTiles,menhirTiles);
+        if (false==predicate.test(topTile(kind))){
+            return withTopTileDrawn(kind);
+        }else {
+            return this;
+        }
 
-        return newTileDecks;
     }
 }
