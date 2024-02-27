@@ -48,7 +48,7 @@ public record Area <Z extends Zone> (Set<Z> zones , List<PlayerColor> occupants,
             }
         }
         return fishCount;
-        
+
     }
 
     public static int riverSystemFishCount(Area<Zone.Water> riverSystem) {
