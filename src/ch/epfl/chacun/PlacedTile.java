@@ -78,7 +78,9 @@ public record PlacedTile (Tile tile, PlayerColor placer, Rotation rotation, Pos 
 
     public Set<Occupant> potentialOccupants() {
         Set<Occupant> potentialOccupants = new HashSet<>();
-        if (placer != null) {
+        if (placer == null) {
+            throw new IllegalArgumentException(); }
+        else {
             for (Zone zones : tile.sideZones()) {
                 if (!(zones instanceof Zone.Lake)) {
                     potentialOccupants.add(new Occupant(Occupant.Kind.PAWN, zones.id()));
