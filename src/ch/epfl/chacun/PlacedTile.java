@@ -77,21 +77,18 @@ public record PlacedTile (Tile tile, PlayerColor placer, Rotation rotation, Pos 
     }
 
     public Set<Occupant> potentialOccupants() {
-        if (placer == null) {
-            return Collections.emptySet();
-        } else {
-            Set<Occupant> potentialOccupants = new HashSet<>();
+        Set<Occupant> potentialOccupants = new HashSet<>();
+        if (placer != null) {
             for (Zone zones : tile.sideZones()) {
-                potentialOccupants.add(new Occupant(Occupant.Kind.PAWN, occupant.zoneId()));
-                if (zones instanceof Zone.River river) {
-                    potentialOccupants.add(new Occupant(Occupant.Kind.PAWN, occupant.zoneId()));
-                    if (river.hasLake()) {
-                        potentialOccupants.add(new Occupant(Occupant.Kind.HUT, occupant.zoneId()));
+                if (!(zones instanceof Zone.Lake)) {
+                    potentialOccupants.add(new Occupant(Occupant.Kind.PAWN, zones.id()));
+                }
+                if (zones instanceof Zone.River || zones instanceof Zone.Lake) {
+                        potentialOccupants.add(new Occupant(Occupant.Kind.HUT, zones.id()));
                     }
                 }
             }
-            return potentialOccupants;
-        }
+        return potentialOccupants;
     }
 
     public PlacedTile withOccupant(Occupant occupant) {

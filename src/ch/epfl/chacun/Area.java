@@ -1,18 +1,15 @@
 package ch.epfl.chacun;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public record Area <Z extends Zone> (Set<Z> zones , List<PlayerColor> occupants, int openConnections) {
 
     public Area {
-        if (openConnections < 0) {
-            throw new IllegalArgumentException();
-        }
+        Preconditions.checkArgument(openConnections >= 0);
         zones = Set.copyOf(zones);
+        List<PlayerColor> sorted = new ArrayList<>(occupants);// recheck si faisable direct
         Collections.sort(occupants);
+        occupants = List.copyOf(sorted);
     }
 
     public static boolean hasMenhir(Area<Zone.Forest> forest) {
@@ -35,16 +32,24 @@ public record Area <Z extends Zone> (Set<Z> zones , List<PlayerColor> occupants,
     }
 
     public static Set<Animal> animals(Area<Zone.Meadow> meadow, Set<Animal> cancelledAnimals) {
-        Set<Animal> remainingAnimals = new HashSet<>(meadow.zones);
-
-
+        Set<Animal> remainingAnimals = new HashSet<>();
+        for (Zone.Meadow meadowZones : meadow.zones) {
+            remainingAnimals.addAll(meadowZones.animals());
+            remainingAnimals.forEach( animal -> {
+                if (cancelledAnimals.contains(animal)) {
+                    remainingAnimals.remove(animal);
+                }
+            });
+        }
+        return remainingAnimals;
     }
 
     public static int riverFishCount(Area<Zone.River> river) {
         int fishCount = 0;
-        for (Zone riverZone : river.zones) {
-            if (riverZone instanceof Zone.River) {
-                fishCount = ((Zone.River) riverZone).fishCount();
+        for (Zone.River riverZone : river.zones) {
+            fishCount = riverZone.fishCount();
+            if(riverZone.hasLake()) {
+                fishCount += riverZone.lake().fishCount();
             }
         }
         return fishCount;
@@ -53,13 +58,11 @@ public record Area <Z extends Zone> (Set<Z> zones , List<PlayerColor> occupants,
 
     public static int riverSystemFishCount(Area<Zone.Water> riverSystem) {
         int fishCount = 0;
-        for (Zone riverZone : riverSystem.zones) {
+        for (Zone.Water riverZone : riverSystem.zones) {
             if (riverZone instanceof Zone.River) {
-                fishCount = ((Zone.River) riverZone).fishCount();
+                fishCount += riverZone.fishCount();
             } else if (riverZone instanceof Zone.Lake) {
-                fishCount = ((Zone.Lake) riverZone).fishCount();
-            } else {
-                return 0;
+                fishCount += riverZone.fishCount();
             }
         }
         return fishCount;
@@ -69,7 +72,7 @@ public record Area <Z extends Zone> (Set<Z> zones , List<PlayerColor> occupants,
         int lakes = 0;
         for (Zone riverZone : riverSystem.zones) {
             if (riverZone instanceof Zone.Lake) {
-                lakes += lakes;
+                lakes += 1;
             } else {
                 return lakes;
             }
@@ -82,34 +85,48 @@ public record Area <Z extends Zone> (Set<Z> zones , List<PlayerColor> occupants,
     }
 
     public boolean isOccupied() {
-        return !occupants.isEmpty();
+        return !occupants.isEmpty(); //null?
     }
 
     public Set<PlayerColor> majorityOccupants() {
-    }
-
-    public Area<Z> connectTo(Area<Z> that) {
-    }
-
-    public Area<Z> withInitialOccupant(PlayerColor occupant) {
-    }
-
-    public Area<Z> withInitialOccupant(PlayerColor occupant) {
-    }
-
-    public Area<Z> withoutOccupants() {
-    }
-
-    public Set<Integer> tileIds() {
-    }
-
-    public Zone zoneWithSpecialPower(Zone.SpecialPower specialPower) {
-        for (Z SPzone : zones) {
-            if (SPzone.specialPower() == specialPower) {
-                return SPzone;
+        int[] occupantCount = new int[PlayerColor.values().length];
+        Set<PlayerColor> majorityOccupants = new HashSet<>();
+        for (PlayerColor occupantColor : occupants) {
+            occupantCount[occupantColor.ordinal()]++; }
+        int maxOccupantColor = Arrays.stream((occupantCount)).max().getAsInt();
+        if (maxOccupantColor > 0) {
+            for (int i = 0; i < occupantCount.length; i++) {
+                if (occupantCount[i] == maxOccupantColor) {
+                    majorityOccupants.add(PlayerColor.values()[i]);
+                }
             }
         }
-        return null;
+        return majorityOccupants;
     }
+}
+
+public Area<Z> connectTo(Area<Z> that) {
+}
+
+public Area<Z> withInitialOccupant(PlayerColor occupant) {
+}
+
+public Area<Z> withInitialOccupant(PlayerColor occupant) {
+}
+
+public Area<Z> withoutOccupants() {
+}
+
+public Set<Integer> tileIds() {
+}
+
+public Zone zoneWithSpecialPower(Zone.SpecialPower specialPower) {
+    for (Z SPzone : zones) {
+        if (SPzone.specialPower() == specialPower) {
+            return SPzone;
+        }
+    }
+    return null;
+}
 }
 

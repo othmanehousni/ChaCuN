@@ -24,8 +24,9 @@ public record Tile (int id, Kind kind, TileSide n, TileSide e, TileSide s, TileS
     }
 
     public Set<Zone> zones() {
-        Set<Zone> allZones = new HashSet<>(sideZones());
-        for (Zone zones : allZones) {
+        Set<Zone> allZones = new HashSet<>();
+        for (Zone zones : sideZones()) {
+            allZones.add(zones);
             if(zones instanceof Zone.River && (((Zone.River) zones).hasLake())) {{
                     allZones.add(((Zone.River) zones).lake());
                 }

@@ -23,41 +23,38 @@ class MyTileTest {
         TileSide.Forest forest1 = new TileSide.Forest(new Zone.Forest(1, Zone.Forest.Kind.PLAIN));
         TileSide.Forest forest2 = new TileSide.Forest(new Zone.Forest(6, Zone.Forest.Kind.WITH_MENHIR));
         Tile tile = new Tile(1, Tile.Kind.START, forest1, tileMeadow, tileRiver,forest2);
-        List<TileSide> sides = tile.sides();
-        assertNotNull(sides);
-        assertFalse(sides.isEmpty());
+        List<TileSide> expectedSides = List.of(forest1,tileMeadow,tileRiver,forest2);
+        assertNotNull(tile.sides());
+        assertFalse(tile.sides().isEmpty());
+        assertEquals(expectedSides,tile.sides());
     }
 
     @Test
     void sideZonesNotNullAndNotEmpty() {
-        Zone.Meadow meadow1 = new Zone.Meadow(2, Collections.emptyList(), Zone.SpecialPower.PIT_TRAP);
-        Zone.Meadow meadow2 = new Zone.Meadow(3, Collections.emptyList(), Zone.SpecialPower.HUNTING_TRAP);
+        Zone.Meadow meadow = new Zone.Meadow(2, Collections.emptyList(), Zone.SpecialPower.PIT_TRAP);
         Zone.River river = new Zone.River(4,0,new Zone.Lake(5,1, Zone.SpecialPower.SHAMAN));
-        TileSide.River tileRiver = new TileSide.River(meadow1, river, meadow2);
-        TileSide.Meadow tileMeadow = new TileSide.Meadow(new Zone.Meadow(5, Collections.emptyList(), Zone.SpecialPower.RAFT));
-        TileSide.Forest forest1 = new TileSide.Forest(new Zone.Forest(1, Zone.Forest.Kind.PLAIN));
-        TileSide.Forest forest2 = new TileSide.Forest(new Zone.Forest(6, Zone.Forest.Kind.WITH_MENHIR));
+        Zone.Forest forests = new Zone.Forest(1, Zone.Forest.Kind.WITH_MUSHROOMS);
+        TileSide.River tileRiver = new TileSide.River(meadow, river, meadow);
+        TileSide.Meadow tileMeadow = new TileSide.Meadow(meadow);
+        TileSide.Forest forest1 = new TileSide.Forest(forests);
+        TileSide.Forest forest2 = new TileSide.Forest(forests);
         Tile tile = new Tile(1, Tile.Kind.START, forest1, tileMeadow, tileRiver,forest2);
-        Set<Zone> sideZones = tile.sideZones();
-        assertNotNull(sideZones);
-        assertFalse(sideZones.isEmpty());
+        Set<Zone> expectedSideZones = Set.of(forests,meadow,river);
+        assertNotNull(tile.sideZones());
+        assertFalse(tile.sideZones().isEmpty());
+        assertEquals(expectedSideZones,tile.sideZones());
     }
 
     @Test
     void zones() {
-        Zone.Meadow meadow1 = new Zone.Meadow(2, Collections.emptyList(), Zone.SpecialPower.PIT_TRAP);
-        Zone.Meadow meadow2 = new Zone.Meadow(3, Collections.emptyList(), Zone.SpecialPower.HUNTING_TRAP);
-        Zone.River river = new Zone.River(4,0,new Zone.Lake(5,1, Zone.SpecialPower.SHAMAN));
-        TileSide.River tileRiver = new TileSide.River(meadow1, river, meadow2);
-        TileSide.Meadow tileMeadow = new TileSide.Meadow(new Zone.Meadow(5, Collections.emptyList(), Zone.SpecialPower.RAFT));
-        TileSide.Forest forest1 = new TileSide.Forest(new Zone.Forest(1, Zone.Forest.Kind.PLAIN));
-        TileSide.Forest forest2 = new TileSide.Forest(new Zone.Forest(6, Zone.Forest.Kind.WITH_MENHIR));
-        Tile tile = new Tile(1, Tile.Kind.START, forest1, tileMeadow, tileRiver,forest2);
-
-        // TODO : REGLER CE PROBLEME DE MERDE
-
-        assertNotNull(tile.zones());
-        assertFalse(tile.zones().isEmpty());
+        Zone.Meadow meadow = new Zone.Meadow(2, Collections.emptyList(), Zone.SpecialPower.PIT_TRAP);
+        Zone.Lake lake = new Zone.Lake(5,1, Zone.SpecialPower.SHAMAN);
+        Zone.River river = new Zone.River(4,0,lake);
+        TileSide.River tileRiver = new TileSide.River(meadow, river, meadow);
+        TileSide.Meadow tileMeadow = new TileSide.Meadow(meadow);
+        Tile tile = new Tile(1, Tile.Kind.START, tileMeadow, tileMeadow, tileRiver,tileMeadow);
+        Set<Zone> expectedZones = Set.of(river,lake,meadow);
+        assertEquals(expectedZones,tile.zones());
     }
 
     @Test
