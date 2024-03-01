@@ -107,7 +107,6 @@ public class MyTileDecksTest {
         TileDecks updatedDecks3 = tileDecks.withTopTileDrawnUntil(Tile.Kind.MENHIR, condition);
         assertEquals(0, updatedDecks3.deckSize(Tile.Kind.MENHIR));
 
-        assertThrows(IllegalArgumentException.class, () -> tileDecks2.withTopTileDrawnUntil(Tile.Kind.START, condition));
     }
 }
 

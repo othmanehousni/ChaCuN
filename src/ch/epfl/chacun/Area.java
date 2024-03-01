@@ -103,30 +103,29 @@ public record Area <Z extends Zone> (Set<Z> zones , List<PlayerColor> occupants,
         }
         return majorityOccupants;
     }
-}
 
-public Area<Z> connectTo(Area<Z> that) {
-}
-
-public Area<Z> withInitialOccupant(PlayerColor occupant) {
-}
-
-public Area<Z> withInitialOccupant(PlayerColor occupant) {
-}
-
-public Area<Z> withoutOccupants() {
-}
-
-public Set<Integer> tileIds() {
-}
-
-public Zone zoneWithSpecialPower(Zone.SpecialPower specialPower) {
-    for (Z SPzone : zones) {
-        if (SPzone.specialPower() == specialPower) {
-            return SPzone;
-        }
+    public Area<Z> connectTo(Area<Z> that) {
     }
-    return null;
-}
+
+    public Area<Z> withInitialOccupant(PlayerColor occupant) {
+    }
+
+    public Area<Z> withInitialOccupant(PlayerColor occupant) {
+    }
+
+    public Area<Z> withoutOccupants() {
+    }
+
+    public Set<Integer> tileIds() {
+    }
+
+    public Zone zoneWithSpecialPower(Zone.SpecialPower specialPower) {
+        for (Z SPzone : zones) {
+            if (SPzone.specialPower() == specialPower) {
+                return SPzone;
+            }
+        }
+        return null;
+    }
 }
 

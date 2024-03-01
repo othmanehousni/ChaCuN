@@ -1,5 +1,6 @@
 package ch.epfl.chacun;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
 
@@ -22,33 +23,34 @@ final public record TileDecks(List<Tile> startTiles, List<Tile> normalTiles, Lis
     public Tile topTile(Tile.Kind kind){
 
         return switch (kind){
-            case START -> startTiles.size() == 0 ? null : startTiles.get(0);
-            case NORMAL -> normalTiles.size() == 0 ? null : normalTiles.get(0);
-            case MENHIR -> menhirTiles.size() == 0 ? null : menhirTiles.get(0);
+            case START -> startTiles.isEmpty() ? null : startTiles.getFirst();
+            case NORMAL -> normalTiles.isEmpty() ? null : normalTiles.getFirst();
+            case MENHIR -> menhirTiles.isEmpty() ? null : menhirTiles.getFirst();
         };
     }
 
     public TileDecks withTopTileDrawn(Tile.Kind kind){
+        ArrayList <Tile> startTilesToArrayList = new ArrayList<>(startTiles);
+        ArrayList <Tile> normalTilesToArrayList = new ArrayList<>(normalTiles);
+        ArrayList<Tile> menhirTilesToArrayList = new ArrayList<>(menhirTiles);
 
-        TileDecks newTileDecks= new TileDecks(startTiles,normalTiles,menhirTiles);
-
-        if (kind == Tile.Kind.START && startTiles.size()!=0){
-            startTiles.remove(0);
-        }else if (kind == Tile.Kind.NORMAL && normalTiles.size()!=0){
-            normalTiles.remove(0);
-        }else if (kind == Tile.Kind.MENHIR && menhirTiles.size()!=0){
-            menhirTiles.remove(0);}
+        if (kind == Tile.Kind.START && !startTiles.isEmpty()){
+            startTilesToArrayList.removeFirst();
+        }else if (kind == Tile.Kind.NORMAL && !normalTiles.isEmpty()){
+            normalTilesToArrayList.removeFirst();
+        }else if (kind == Tile.Kind.MENHIR && !menhirTiles.isEmpty()){
+            menhirTilesToArrayList.removeFirst();}
         else {
             throw new IllegalArgumentException();
-
         }
-        return newTileDecks;
+
+        return new TileDecks(startTilesToArrayList,normalTilesToArrayList,menhirTilesToArrayList);
     }
 
 
     public TileDecks withTopTileDrawnUntil(Tile.Kind kind, Predicate<Tile> predicate){
 
-        if (false==predicate.test(topTile(kind))){
+        if (deckSize(kind) != 0 && topTile(kind) !=null && !predicate.test(topTile(kind))){
             return withTopTileDrawn(kind);
         }else {
             return this;
