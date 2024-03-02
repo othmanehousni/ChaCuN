@@ -1,14 +1,17 @@
 package ch.epfl.chacun;
 
 /**
+ * @author Othmane HOUSNI (375072)
+ * @author Hamza Zoubayri (361522)
+ * <p>
  * Represents a position in a two-dimensional space with x and y coordinates.
  */
-public record Pos (int x, int y) {
+public record Pos(int x, int y) {
 
     /**
      * A constant holding the origin position (0, 0).
      */
-    public static final Pos ORIGIN = new Pos(0,0);
+    public static final Pos ORIGIN = new Pos(0, 0);
 
 
     /**
@@ -29,7 +32,7 @@ public record Pos (int x, int y) {
      * @param direction The direction to find the neighbor in.
      * @return A new {@code Pos} instance representing the neighboring position.
      */
-    public Pos neighbor (Direction direction) {
+    public Pos neighbor(Direction direction) {
         return switch (direction) {
             case N -> translated(0, -1);
             case E -> translated(1, 0);

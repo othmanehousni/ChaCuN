@@ -93,8 +93,6 @@ public class MyTileDecksTest {
         // Draw top tiles until a certain condition is met for each kind of tile
         Predicate<Tile> condition = tile -> tile.id() == 3;
         Predicate<Tile> condition2 = tile -> true;
-
-
         TileDecks updatedDecks1 = tileDecks.withTopTileDrawnUntil(Tile.Kind.START, condition);
         assertEquals(0, updatedDecks1.deckSize(Tile.Kind.START));
 

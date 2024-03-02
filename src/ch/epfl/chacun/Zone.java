@@ -3,16 +3,12 @@ package ch.epfl.chacun;
 import java.util.List;
 
 /**
+ * @author Othmane HOUSNI (375072)
+ * @author Hamza Zoubayri (361522)
+ * <p>
  * Represents a zone in the game world, with various implementations for different types of zones.
  */
 public sealed interface Zone {
-
-    /**
-     * Gets the unique identifier for the zone.
-     *
-     * @return the unique identifier of the zone.
-     */
-    public abstract int id();
 
     /**
      * Calculates the tile ID based on the zone's unique identifier.
@@ -30,16 +26,23 @@ public sealed interface Zone {
      * @param zoneId the unique identifier of the zone.
      * @return the local ID within a tile.
      */
-    public static int localId (int zoneId) {
+    public static int localId(int zoneId) {
         return zoneId % 10;
     }
+
+    /**
+     * Gets the unique identifier for the zone.
+     *
+     * @return the unique identifier of the zone.
+     */
+    public abstract int id();
 
     /**
      * Default method to calculate the tile ID of this zone.
      *
      * @return the tile ID of this zone.
      */
-    default int tileId(){
+    default int tileId() {
         return tileId(id());
     }
 
@@ -48,20 +51,24 @@ public sealed interface Zone {
      *
      * @return the local ID of this zone.
      */
-    default int localId() {return localId(id());}
+    default int localId() {
+        return localId(id());
+    }
 
     /**
      * Returns the special power associated with the zone, if any.
      *
      * @return the special power of the zone, or null if none.
      */
-    default SpecialPower specialPower() {return null;}
+    default SpecialPower specialPower() {
+        return null;
+    }
 
 
     /**
      * Enumerates the special powers that can be associated with zones.
      */
-     enum SpecialPower {
+    enum SpecialPower {
         SHAMAN,
         LOGBOAT,
         HUNTING_TRAP,
@@ -71,9 +78,16 @@ public sealed interface Zone {
     }
 
     /**
+     * Represents a water zone, either a lake or a river, containing fish.
+     */
+    sealed interface Water extends Zone {
+        public abstract int fishCount();
+    }
+
+    /**
      * Represents a forest zone with a specific kind and ID.
      */
-     record Forest (int id, Kind kind) implements Zone {
+    record Forest(int id, Kind kind) implements Zone {
 
         /**
          * Enumerates the kinds of forests.
@@ -89,36 +103,31 @@ public sealed interface Zone {
      * Represents a meadow zone containing animals and possibly a special power.
      */
 
-     record Meadow (int id, List<Animal> animals, SpecialPower specialPower) implements Zone{
+    record Meadow(int id, List<Animal> animals, SpecialPower specialPower) implements Zone {
         public Meadow {
             animals = List.copyOf(animals);
         }
     }
 
     /**
-     * Represents a water zone, either a lake or a river, containing fish.
-     */
-     sealed interface Water extends Zone {
-        public abstract int fishCount ();
-    }
-
-    /**
      * Represents a lake, a type of water zone, with a specific fish count and possibly a special power.
      */
-    record Lake (int id, int fishCount, SpecialPower specialPower) implements Water {
+    record Lake(int id, int fishCount, SpecialPower specialPower) implements Water {
 
     }
 
     /**
      * Represents a river, a type of water zone, potentially connected to a lake, with a specific fish count.
      */
-    record River (int id, int fishCount, Lake lake) implements Water{
+    record River(int id, int fishCount, Lake lake) implements Water {
 
         /**
          * Determines if the river is connected to a lake.
          *
          * @return true if the river has a lake, false otherwise.
          */
-        public boolean hasLake() {return lake !=null;}
+        public boolean hasLake() {
+            return lake != null;
+        }
     }
 }

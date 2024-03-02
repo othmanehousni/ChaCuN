@@ -3,6 +3,9 @@ package ch.epfl.chacun;
 import java.util.List;
 
 /**
+ * @author Othmane HOUSNI (375072)
+ * @author Hamza ZOUBAYRI (361522)
+ * <p>
  * Represents the cardinal directions in which an entity can move or face.
  * Enumerates all possible directions.
  */
@@ -30,7 +33,7 @@ public enum Direction {
      * @param rotation The rotation to apply to this direction.
      * @return The new direction after rotation is applied.
      */
-    public Direction rotated (Rotation rotation) {
+    public Direction rotated(Rotation rotation) {
         return ALL.get((ordinal() + rotation.ordinal()) % COUNT);
     }
 
@@ -40,7 +43,7 @@ public enum Direction {
      *
      * @return The opposite direction.
      */
-    public Direction opposite () {
+    public Direction opposite() {
         return rotated(Rotation.HALF_TURN);
     }
 }

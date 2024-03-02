@@ -88,8 +88,10 @@ public class MyPlacedTileTest {
         PlacedTile placedTile = new PlacedTile(tile, PlayerColor.RED, Rotation.NONE, new Pos(0, 0));
         Set<Zone> expectedZones = new HashSet<>(List.of(meadowZone));
         // Verify that meadowZones() method returns the correct meadow zones
-        assertEquals(expectedZones, placedTile.meadowsZones());
+        assertEquals(expectedZones, placedTile.meadowZones());
     }
+
+
 
     @Test
     void testRiverZones() {

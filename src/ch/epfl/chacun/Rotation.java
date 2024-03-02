@@ -3,6 +3,9 @@ package ch.epfl.chacun;
 import java.util.List;
 
 /**
+ * @author Othmane HOUSNI (375072)
+ * @author Hamza Zoubayri (361522)
+ * <p>
  * Represents and enumerates the possible rotations that can be applied to an object in a two-dimensional space.
  */
 public enum Rotation {
@@ -29,7 +32,7 @@ public enum Rotation {
      * @return The resulting rotation after addition.
      */
     public Rotation add(Rotation that) {
-        return ALL.get((ordinal() + that.ordinal())  % COUNT);
+        return ALL.get((ordinal() + that.ordinal()) % COUNT);
 
     }
 
@@ -39,7 +42,7 @@ public enum Rotation {
      * @return The negated rotation.
      */
     public Rotation negated() {
-        return ALL.get((COUNT - ordinal()) %  COUNT);
+        return ALL.get((COUNT - ordinal()) % COUNT);
     }
 
 
