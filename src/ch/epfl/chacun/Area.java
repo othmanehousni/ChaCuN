@@ -7,8 +7,7 @@ public record Area <Z extends Zone> (Set<Z> zones , List<PlayerColor> occupants,
     public Area {
         Preconditions.checkArgument(openConnections >= 0);
         zones = Set.copyOf(zones);
-        List<PlayerColor> sorted = new ArrayList<>(occupants);// recheck si faisable direct
-        Collections.sort(occupants);
+        List <PlayerColor> sorted = occupants.stream().sorted().toList();// sort par rappport au kind
         occupants = List.copyOf(sorted);
     }
 
@@ -24,8 +23,8 @@ public record Area <Z extends Zone> (Set<Z> zones , List<PlayerColor> occupants,
     public static int mushroomGroupCount(Area<Zone.Forest> forest) {
         int mushroomCount = 0;
         for (Zone.Forest forestZones : forest.zones) {
-            if(forestZones.kind().equals(Zone.Forest.Kind.WITH_MUSHROOMS)) {
-                mushroomCount = 1;
+            if (forestZones.kind().equals(Zone.Forest.Kind.WITH_MUSHROOMS)) {
+                mushroomCount += 1;
             }
         }
         return mushroomCount;
@@ -34,21 +33,19 @@ public record Area <Z extends Zone> (Set<Z> zones , List<PlayerColor> occupants,
     public static Set<Animal> animals(Area<Zone.Meadow> meadow, Set<Animal> cancelledAnimals) {
         Set<Animal> remainingAnimals = new HashSet<>();
         for (Zone.Meadow meadowZones : meadow.zones) {
-            remainingAnimals.addAll(meadowZones.animals());
-            remainingAnimals.forEach( animal -> {
-                if (cancelledAnimals.contains(animal)) {
-                    remainingAnimals.remove(animal);
-                }
-            });
+            remainingAnimals.addAll(meadowZones.animals()); }
+        if(cancelledAnimals != null) {
+            remainingAnimals.removeAll(cancelledAnimals);
         }
         return remainingAnimals;
     }
 
     public static int riverFishCount(Area<Zone.River> river) {
         int fishCount = 0;
+        Set<Zone.Lake> lakeFishZone = new HashSet<>();
         for (Zone.River riverZone : river.zones) {
-            fishCount = riverZone.fishCount();
-            if(riverZone.hasLake()) {
+            fishCount += riverZone.fishCount();
+            if(riverZone.hasLake() && lakeFishZone.add(riverZone.lake())) { //verifier la premirere condition
                 fishCount += riverZone.lake().fishCount();
             }
         }
@@ -59,22 +56,16 @@ public record Area <Z extends Zone> (Set<Z> zones , List<PlayerColor> occupants,
     public static int riverSystemFishCount(Area<Zone.Water> riverSystem) {
         int fishCount = 0;
         for (Zone.Water riverZone : riverSystem.zones) {
-            if (riverZone instanceof Zone.River) {
-                fishCount += riverZone.fishCount();
-            } else if (riverZone instanceof Zone.Lake) {
                 fishCount += riverZone.fishCount();
             }
-        }
         return fishCount;
     }
 
     public static int lakeCount(Area<Zone.Water> riverSystem) {
         int lakes = 0;
-        for (Zone riverZone : riverSystem.zones) {
+        for (Zone.Water riverZone : riverSystem.zones) {
             if (riverZone instanceof Zone.Lake) {
                 lakes += 1;
-            } else {
-                return lakes;
             }
         }
         return lakes;
@@ -85,7 +76,7 @@ public record Area <Z extends Zone> (Set<Z> zones , List<PlayerColor> occupants,
     }
 
     public boolean isOccupied() {
-        return !occupants.isEmpty(); //null?
+        return !occupants.isEmpty();
     }
 
     public Set<PlayerColor> majorityOccupants() {
@@ -104,25 +95,52 @@ public record Area <Z extends Zone> (Set<Z> zones , List<PlayerColor> occupants,
         return majorityOccupants;
     }
 
-    public Area<Z> connectTo(Area<Z> that) {
+    public Area<Z> connectTo(Area<Z> that){
+        if(that.equals(this)){
+            if(that.openConnections < 2) {
+                return new Area<>(zones, occupants,0);
+            } return new Area<>(zones, occupants,openConnections -2);
+        } else {
+            List<PlayerColor> combinedOccupants = new ArrayList<>(occupants);
+            combinedOccupants.addAll(that.occupants);
+            Set<Z> combinedZones = new HashSet<>(zones);
+            combinedZones.addAll(that.zones);
+            int combinedOpenConnections = openConnections + that.openConnections - 2;
+            if(combinedOpenConnections < 0) {
+                combinedOpenConnections = 0;
+            }
+            return new Area<>(combinedZones,combinedOccupants,combinedOpenConnections);
+        }
     }
 
-    public Area<Z> withInitialOccupant(PlayerColor occupant) {
+    public Area<Z> withInitialOccupant(PlayerColor occupant){
+        Preconditions.checkArgument(!isOccupied());
+        return new Area<>(zones, List.of(occupant), openConnections);
     }
 
-    public Area<Z> withInitialOccupant(PlayerColor occupant) {
+    public Area<Z> withoutOccupant(PlayerColor occupant){
+        Preconditions.checkArgument(occupants.contains(occupant));
+        List<PlayerColor> updatedOccupants = new ArrayList<>(occupants);
+        updatedOccupants.remove(occupant);
+        return new Area<>(zones, updatedOccupants, openConnections);
     }
 
-    public Area<Z> withoutOccupants() {
+    public Area<Z> withoutOccupants(){
+        return new Area<>(zones, new ArrayList<>(),openConnections);
     }
 
-    public Set<Integer> tileIds() {
+    public Set<Integer> tileIds(){
+        Set<Integer> tileIdsSet = new HashSet<>();
+        for (Zone zone : zones){
+            tileIdsSet.add(zone.tileId());
+        }
+        return tileIdsSet;
     }
 
     public Zone zoneWithSpecialPower(Zone.SpecialPower specialPower) {
-        for (Z SPzone : zones) {
-            if (SPzone.specialPower() == specialPower) {
-                return SPzone;
+        for (Zone specialZone : zones) {
+            if (specialPower.equals(specialZone.specialPower())) {
+                return specialZone;
             }
         }
         return null;

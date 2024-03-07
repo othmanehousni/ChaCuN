@@ -90,7 +90,7 @@ public record TileDecks(List<Tile> startTiles, List<Tile> normalTiles, List<Tile
 
         TileDecks tileDeck = this;
         while (tileDeck.topTile(kind) != null && !predicate.test(tileDeck.topTile(kind))) {
-            tileDeck = withTopTileDrawn(kind);
+            tileDeck = tileDeck.withTopTileDrawn(kind);
         }
         return tileDeck;
     }

@@ -94,6 +94,7 @@ public sealed interface Zone {
          */
         public enum Kind {
             PLAIN,
+
             WITH_MENHIR,
             WITH_MUSHROOMS;
         }
