@@ -12,7 +12,7 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.*;
 
 
-public class MyZonePartitionTest3 {
+public class MyZonePartitionTest1234 {
     // an arbitrary value for open connections for zones that are built separately
     private static final int OPEN_CONNECTIONS = 2;
     private static final PlayerColor NEW_PLAYER_COLOR = PlayerColor.GREEN;
@@ -307,7 +307,6 @@ public class MyZonePartitionTest3 {
 
         assertEquals(expectedZonePartition, meadowPartitionBuilder.build());
     }
-
 
     void unionDoesNothingIfZoneAreTheSame() {
         List<Zone.Meadow> meadowZones = getMeadowZones();

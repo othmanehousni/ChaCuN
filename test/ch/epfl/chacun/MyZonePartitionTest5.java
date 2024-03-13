@@ -11,8 +11,7 @@ import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-
-public class MyZonePartitionTest3 {
+public class MyZonePartitionTest5 {
     // an arbitrary value for open connections for zones that are built separately
     private static final int OPEN_CONNECTIONS = 2;
     private static final PlayerColor NEW_PLAYER_COLOR = PlayerColor.GREEN;
@@ -227,122 +226,6 @@ public class MyZonePartitionTest3 {
         assertEquals(expectedRiverSystemsZonePartition, riverSystemsPartitionBuilder.build());
 
     }
-
-
-    /**
-
-
-    @Test
-    void addInitialOccupantThrowsIllegalArgumentExceptionIfAreaAlreadyOccupied() {
-        PlayerColor newplayerColor = PlayerColor.GREEN;
-        Zone.Meadow> meadowArea2 = new Area<>(meadowZones2, new ArrayList<>(), 2);
-        Area<Zone.Meadow> meadowArea3 = new Area<>(meadowZones3, List.of(PlayerColor.PURPLE), 3);
-        expectedMeadowAreas.add(meadowArea1);
-        expectedMeadowAreas.add(meadowArea2);
-        expectedMeadowAreas.add(meadowArea3);
-        ZonePartition<Zone.Meadow> expectedZonePartition = new ZonePartition<>(expectedMeadowAreas);
-
-        ZonePartition.Builder<Zone.Meadow> meadowPartitionBuilder = getMeadowPartitionBuilder();
-        meadowPartitionBuilder.removeAllOccupantsOf(
-                new Area<>(meadowZones1, List.of(PlayerColor.RED, PlayerColor.GREEN), 4));
-
-        assertEquals(expectedZonePartition, meadowPartitionBuilder.build());
-
-
-        expectedMeadowAreas.clear();
-        meadowArea1 = new Area<>(meadowZones1,  List.of(PlayerColor.RED, PlayerColor.GREEN), 4);
-        meadowArea2 = new Area<>(meadowZones2, new ArrayList<>(), 2);
-        meadowArea3 = new Area<>(meadowZones3, new ArrayList<>(), 3);
-        expectedMeadowAreas.add(meadowArea1);
-        expectedMeadowAreas.add(meadowArea2);
-        expectedMeadowAreas.add(meadowArea3);
-        expectedZonePartition = new ZonePartition<>(expectedMeadowAreas);
-
-        meadowPartitionBuilder = getMeadowPartitionBuilder();
-        meadowPartitionBuilder.removeAllOccupantsOf(
-                new Area<>(meadowZones3, List.of(PlayerColor.PURPLE), 3));
-
-        assertEquals(expectedZonePartition, meadowPartitionBuilder.build());
-    }
-     */
-
-    @Test
-    void removeAllOccupantsThrowsIllegalArgumentExceptionIfAreaIsNotPartOfPartition() {
-        Zone.Meadow meadowNotInPartition = new Zone.Meadow(5, List.of(new Animal(0, Animal.Kind.TIGER)), Zone.SpecialPower.WILD_FIRE);
-
-        Area<Zone.Meadow> areaNotInPartition = new Area<>(Set.of(meadowNotInPartition), new ArrayList<>(), 3);
-        ZonePartition.Builder<Zone.Meadow> meadowPartitionBuilder = getMeadowPartitionBuilder();
-
-        assertThrows(IllegalArgumentException.class, () -> meadowPartitionBuilder.removeAllOccupantsOf(areaNotInPartition));
-    }
-
-    @Test
-    void unionConnectsTwoDifferentZones() {
-        Set<Area<Zone.Meadow>> expectedMeadowAreas = new HashSet<>();
-        List<Zone.Meadow> meadowZones = getMeadowZones();
-        Set<Zone.Meadow> meadowZones1 = Set.of(meadowZones.get(0), meadowZones.get(2));
-        Set<Zone.Meadow> meadowZones2 = Set.of(meadowZones.get(1));
-        Set<Zone.Meadow> meadowZones3 = Set.of(meadowZones.get(3));
-
-        Area<Zone.Meadow> meadowArea1 = new Area<>(meadowZones1, List.of(PlayerColor.RED, PlayerColor.GREEN), 4);
-        Area<Zone.Meadow> meadowArea2 = new Area<>(meadowZones2, new ArrayList<>(), 2);
-        Area<Zone.Meadow> meadowArea3 = new Area<>(meadowZones3, List.of(PlayerColor.PURPLE), 3);
-
-        expectedMeadowAreas.add(meadowArea2);
-        expectedMeadowAreas.add(meadowArea1.connectTo(meadowArea3));
-        ZonePartition<Zone.Meadow> expectedZonePartition = new ZonePartition<>(expectedMeadowAreas);
-
-        ZonePartition.Builder<Zone.Meadow> meadowPartitionBuilder = getMeadowPartitionBuilder();
-        meadowPartitionBuilder.union(meadowZones.get(2), meadowZones.get(3));
-
-        assertEquals(expectedZonePartition, meadowPartitionBuilder.build());
-
-        expectedMeadowAreas.clear();
-        expectedMeadowAreas.add(meadowArea3);
-        expectedMeadowAreas.add(meadowArea2.connectTo(meadowArea1));
-        expectedZonePartition = new ZonePartition<>(expectedMeadowAreas);
-
-        meadowPartitionBuilder = getMeadowPartitionBuilder();
-        meadowPartitionBuilder.union(meadowZones.get(1), meadowZones.get(0));
-
-        assertEquals(expectedZonePartition, meadowPartitionBuilder.build());
-    }
-
-
-    void unionDoesNothingIfZoneAreTheSame() {
-        List<Zone.Meadow> meadowZones = getMeadowZones();
-        ZonePartition.Builder<Zone.Meadow> meadowPartitionBuilder = getMeadowPartitionBuilder();
-        meadowPartitionBuilder.union(meadowZones.getFirst(), meadowZones.getFirst());
-        assertEquals(getMeadowPartition(), meadowPartitionBuilder.build());
-
-        meadowPartitionBuilder.union(meadowZones.get(1), meadowZones.get(1));
-        assertEquals(getMeadowPartition(), meadowPartitionBuilder.build());
-    }
-
-    @Test
-    void unionThrowsIllegalArgumentExceptionIfOneOfTwoZonesIsNotInPartition() {
-        Zone.Meadow meadowNotInPartition = new Zone.Meadow(5, List.of(new Animal(0, Animal.Kind.TIGER)), Zone.SpecialPower.WILD_FIRE);
-        List<Zone.Meadow> meadowZones = getMeadowZones();
-        ZonePartition.Builder<Zone.Meadow> meadowPartitionBuilder = getMeadowPartitionBuilder();
-        assertThrows(IllegalArgumentException.class, () -> meadowPartitionBuilder.union(meadowNotInPartition, meadowZones.getFirst()));
-        assertThrows(IllegalArgumentException.class, () -> meadowPartitionBuilder.union(meadowZones.getFirst(), meadowNotInPartition));
-    }
-
-    @Test
-    void unionThrowsIllegalArgumentExceptionTwoZonesAreNotInPartition() {
-        Zone.Meadow meadowNotInPartition = new Zone.Meadow(5, List.of(new Animal(0, Animal.Kind.TIGER)), Zone.SpecialPower.WILD_FIRE);
-        ZonePartition.Builder<Zone.Meadow> meadowPartitionBuilder = getMeadowPartitionBuilder();
-        assertThrows(IllegalArgumentException.class, () -> meadowPartitionBuilder.union(meadowNotInPartition, meadowNotInPartition));
-    }
-
-    @Test
-    void buildBuildsACorrectZonePartition() {
-        ZonePartition.Builder<Zone.Meadow> meadowPartitionBuilder = new ZonePartition.Builder<>(getMeadowPartition());
-        assertEquals(getMeadowPartition(), meadowPartitionBuilder.build());
-    }
-
-
-
 
 
 }
