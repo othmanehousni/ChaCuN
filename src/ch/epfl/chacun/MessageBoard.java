@@ -5,8 +5,9 @@ import java.util.*;
 public record MessageBoard (TextMaker textMaker, List<Message> messages) {
 
     public MessageBoard {
+        Preconditions.checkArgument(textMaker != null);
         messages = List.copyOf(messages);
-    }
+        }
 
     // methodes privees a expliquer
     private Map<Animal.Kind, Integer> getAnimalMap(Set<Animal> animals) {
@@ -27,6 +28,7 @@ public record MessageBoard (TextMaker textMaker, List<Message> messages) {
         for (Message message : messages) {
             for (PlayerColor scorer : message.scorers()) {
                 pointsMap.put(scorer, pointsMap.getOrDefault(scorer, 0) + message.points);
+
             }
         }
         return pointsMap;
@@ -49,9 +51,11 @@ public record MessageBoard (TextMaker textMaker, List<Message> messages) {
                     forest.tileIds());
 
 
-            messages.add(scoredMessage);
+            List<Message> newMessages = new ArrayList<>(messages);
+            newMessages.add(scoredMessage);
 
-            return new MessageBoard (textMaker, messages);
+
+            return new MessageBoard (textMaker, newMessages);
         }
     }
 
@@ -62,9 +66,12 @@ public record MessageBoard (TextMaker textMaker, List<Message> messages) {
                     Set.of(),
                     forest.tileIds());
 
-            messages.add(scoredMessage);
 
-            return new MessageBoard (textMaker, messages);
+        List<Message> newMessages = new ArrayList<>(messages);
+        newMessages.add(scoredMessage);
+
+
+        return new MessageBoard (textMaker, newMessages);
     }
 
     public MessageBoard withScoredRiver(Area<Zone.River> river){
@@ -77,14 +84,18 @@ public record MessageBoard (TextMaker textMaker, List<Message> messages) {
                     Area.riverFishCount(river),
                     river.tileIds().size());
 
-            Message scoredMessage = new Message (scoredForestText,
-                    Points.forClosedForest(river.tileIds().size(), Area.riverFishCount(river)),
+            Message scoredMessage = new Message (
+                    scoredForestText,
+                    Points.forClosedRiver(river.tileIds().size(), Area.riverFishCount(river)),
                     river.majorityOccupants(),
                     river.tileIds());
 
-            messages.add(scoredMessage);
 
-            return new MessageBoard (textMaker, messages);
+            List<Message> newMessages = new ArrayList<>(messages);
+            newMessages.add(scoredMessage);
+
+
+            return new MessageBoard (textMaker, newMessages);
         }
     }
 
@@ -106,9 +117,12 @@ public record MessageBoard (TextMaker textMaker, List<Message> messages) {
                     Set.of(scorer),
                     adjacentMeadow.tileIds());
 
-            messages.add(scoredMessage);
 
-            return new MessageBoard(textMaker, messages);
+            List<Message> newMessages = new ArrayList<>(messages);
+            newMessages.add(scoredMessage);
+
+
+            return new MessageBoard (textMaker, newMessages);
         }
     }
 
@@ -126,16 +140,18 @@ public record MessageBoard (TextMaker textMaker, List<Message> messages) {
                 Set.of(scorer),
                 riverSystem.tileIds());
 
-        messages.add(scoredMessage);
+        List<Message> newMessages = new ArrayList<>(messages);
+        newMessages.add(scoredMessage);
 
-        return new MessageBoard (textMaker, messages);
+
+        return new MessageBoard (textMaker, newMessages);
     }
 
     public MessageBoard withScoredMeadow(Area<Zone.Meadow> meadow, Set<Animal> cancelledAnimals){
         Set <Animal> animalSet = Area.animals(meadow, cancelledAnimals);
         Map<Animal.Kind, Integer> animalMap = getAnimalMap(animalSet);
         int points = getAnimalPoint(animalMap);
-        if (meadow.majorityOccupants().isEmpty() && points <= 0) {
+        if (meadow.majorityOccupants().isEmpty() || points <= 0) {
             return this;
         } else {
             String scoredForestText = textMaker.playersScoredMeadow(
@@ -149,15 +165,17 @@ public record MessageBoard (TextMaker textMaker, List<Message> messages) {
                     meadow.majorityOccupants(),
                     meadow.tileIds());
 
-            messages.add(scoredMessage);
+            List<Message> newMessages = new ArrayList<>(messages);
+            newMessages.add(scoredMessage);
 
-            return new MessageBoard(textMaker, messages);
+
+            return new MessageBoard(textMaker, newMessages);
         }
     }
 
     public MessageBoard withScoredRiverSystem(Area<Zone.Water> riverSystem){
         int points = Points.forRiverSystem(Area.riverSystemFishCount(riverSystem));
-        if(riverSystem.majorityOccupants().isEmpty() && points <= 0) {
+        if(riverSystem.majorityOccupants().isEmpty() || points <= 0) {
             return this;
         } else {
             String scoredForestText = textMaker.playersScoredRiverSystem(
@@ -167,15 +185,18 @@ public record MessageBoard (TextMaker textMaker, List<Message> messages) {
 
             Message scoredMessage = new Message(
                     scoredForestText,
-                    Points.forRiverSystem(Area.riverSystemFishCount(riverSystem)),
+                    points,
                     riverSystem.majorityOccupants(),
                     riverSystem.tileIds());
 
-            messages.add(scoredMessage);
 
-            return new MessageBoard(textMaker, messages);
+            List<Message> newMessages = new ArrayList<>(messages);
+            newMessages.add(scoredMessage);
+
+            return new MessageBoard(textMaker, newMessages);
         }
     }
+
 
     public MessageBoard withScoredPitTrap(Area<Zone.Meadow> adjacentMeadow, Set<Animal> cancelledAnimals){
         Set <Animal> animalSet = Area.animals(adjacentMeadow, cancelledAnimals);
@@ -195,9 +216,11 @@ public record MessageBoard (TextMaker textMaker, List<Message> messages) {
                     adjacentMeadow.majorityOccupants(),
                     adjacentMeadow.tileIds());
 
-            messages.add(scoredMessage);
+            List<Message> newMessages = new ArrayList<>(messages);
+            newMessages.add(scoredMessage);
 
-            return new MessageBoard(textMaker, messages);
+
+            return new MessageBoard (textMaker, newMessages);
         }
     }
 
@@ -208,22 +231,27 @@ public record MessageBoard (TextMaker textMaker, List<Message> messages) {
         } else {
             String scoredForestText = textMaker.playersScoredRaft(
                     riverSystem.majorityOccupants(),
-                    Points.forRiverSystem(Area.riverSystemFishCount(riverSystem)),
-                    Area.riverSystemFishCount(riverSystem));
+                    Points.forRaft(Area.lakeCount(riverSystem)),
+                    Area.lakeCount(riverSystem));
 
             Message scoredMessage = new Message(
                     scoredForestText,
-                    Points.forRiverSystem(Area.riverSystemFishCount(riverSystem)),
+                    Points.forRaft(Area.lakeCount(riverSystem)),
                     riverSystem.majorityOccupants(),
                     riverSystem.tileIds());
 
-            messages.add(scoredMessage);
+            List<Message> newMessages = new ArrayList<>(messages);
+            newMessages.add(scoredMessage);
 
-            return new MessageBoard(textMaker, messages);
+
+            return new MessageBoard (textMaker, newMessages);
+
         }
     }
 
     public MessageBoard withWinners(Set<PlayerColor> winners, int points){
+        Preconditions.checkArgument(!winners.isEmpty());
+        // TODO : CHECK SI LES WINNER C IMPORTANT
         String scoredForestText = textMaker.playersWon(
                 winners,
                 points);
@@ -234,9 +262,12 @@ public record MessageBoard (TextMaker textMaker, List<Message> messages) {
                 winners,
                 Set.of());
 
-        messages.add(scoredMessage);
 
-        return new MessageBoard (textMaker, messages);
+        List<Message> newMessages = new ArrayList<>(messages);
+        newMessages.add(scoredMessage);
+
+
+        return new MessageBoard (textMaker, newMessages);
 
 
     }
@@ -245,7 +276,7 @@ public record MessageBoard (TextMaker textMaker, List<Message> messages) {
     public record Message (String text, int points, Set<PlayerColor> scorers, Set<Integer> tileIds) {
         public Message {
             Preconditions.checkArgument(points >= 0);
-            Objects.requireNonNull(text);
+            Preconditions.checkArgument(text != null);
             scorers = Set.copyOf(scorers);
             tileIds = Set.copyOf(tileIds);
         }

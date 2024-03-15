@@ -1,4 +1,4 @@
-package etape4;
+package ch.epfl.chacun;
 
 import ch.epfl.chacun.*;
 import org.junit.jupiter.api.Test;
@@ -144,7 +144,7 @@ public class zpsAli {
             builder.addTile(tile);
             ZonePartitions actual = builder.build();
 
-            assertEquals(expectedForestPartition, actual.forest());
+            assertEquals(expectedForestPartition, actual.forests());
             assertEquals(expectedMeadowPartition, actual.meadows());
             assertEquals(expectedRiverPartition, actual.rivers());
             assertEquals(expectedRiverSystemPartition, actual.riverSystems());
@@ -218,7 +218,7 @@ public class zpsAli {
             builder.addTile(tile);
             ZonePartitions actual = builder.build();
 
-            assertEquals(expectedForestPartition, actual.forest());
+            assertEquals(expectedForestPartition, actual.forests());
             assertEquals(expectedMeadowPartition, actual.meadows());
             assertEquals(expectedRiverPartition, actual.rivers());
             assertEquals(expectedRiverSystemPartition, actual.riverSystems());

@@ -1,6 +1,4 @@
-package ch.epfl;
-
-import ch.epfl.chacun.*;
+package ch.epfl.chacun;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -32,19 +30,5 @@ public class Board {
         return EMPTY;
     }
 
-    public Set<Pos> insertionPosition () {
-        Set<Pos> positions = new HashSet<>();
-        Pos[] neighbors;
-        for(Direction direction : Direction.values()) {
-            for (int i = 0; i < 4; i++) {
-                neighbors[i] = cu
-        }
-        for (int i = 0; i < placedTiles.length; i++) {
-            if (placedTiles[i] == null) {
 
-            }
-        }
-            return positions;
-
-    }
 }
