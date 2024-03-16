@@ -86,8 +86,8 @@ public class MessageBoardTest {
     @Test
     void messageConstructorThrowsIllegalArgumentExceptionIfArgumentsAreNull() {
         assertThrows(IllegalArgumentException.class, () -> new MessageBoard.Message(null, 0, new HashSet<>(), new HashSet<>()));
-        assertThrows(NullPointerException.class, () -> new MessageBoard.Message("", 0, null, new HashSet<>()));
-        assertThrows(NullPointerException.class, () -> new MessageBoard.Message("", 0, new HashSet<>(), null));
+        assertThrows(IllegalArgumentException.class, () -> new MessageBoard.Message("", 0, null, new HashSet<>()));
+        assertThrows(IllegalArgumentException.class, () -> new MessageBoard.Message("", 0, new HashSet<>(), null));
     }
 
     @Test
