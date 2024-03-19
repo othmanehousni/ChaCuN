@@ -290,7 +290,7 @@ public record MessageBoard (TextMaker textMaker, List<Message> messages) {
         Set <Animal> animalSet = Area.animals(adjacentMeadow, cancelledAnimals);
         Map<Animal.Kind, Integer> animalMap = getAnimalMap(animalSet);
         int points = getAnimalPoint(animalMap);
-        if(adjacentMeadow.majorityOccupants().isEmpty() && points <= 0) {
+        if(adjacentMeadow.majorityOccupants().isEmpty() || points <= 0) {
             return this;
         } else {
             String scoredForestText = textMaker.playersScoredPitTrap(
@@ -358,7 +358,7 @@ public record MessageBoard (TextMaker textMaker, List<Message> messages) {
 
         Message scoredMessage = new Message (
                 scoredText,
-                points,
+                0,
                 winners,
                 Set.of());
 

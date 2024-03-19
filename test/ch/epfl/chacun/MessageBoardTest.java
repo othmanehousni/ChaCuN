@@ -1,762 +1,536 @@
 package ch.epfl.chacun;
 
-import ch.epfl.chacun.*;
 import org.junit.jupiter.api.Test;
-import ch.epfl.chacun.ChaCuNUtils;
-import ch.epfl.chacun.Tuples;
-import ch.epfl.chacun.TextMakerTest;
 
 import java.util.*;
-import java.util.function.Function;
+import java.util.stream.Collectors;
 
+import static ch.epfl.chacun.PlayerColor.*;
+import static ch.epfl.chacun.Zone.Forest.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-public class MessageBoardTest {
-
-    private static final TextMaker TEXT_MAKER = new TextMakerTest();
-
-    private static List<MessageBoard.Message> getInitialMessages() {
-        List<MessageBoard.Message> messages = new ArrayList<>();
-        messages.add(new MessageBoard.Message("1", 3, Set.of(PlayerColor.RED, PlayerColor.GREEN), Set.of(12, 33, 46)));
-        messages.add(new MessageBoard.Message("2", 10, Set.of(PlayerColor.BLUE, PlayerColor.PURPLE), Set.of(1, 56, 17)));
-        messages.add(new MessageBoard.Message("3", 22, Set.of(PlayerColor.YELLOW), Set.of(2, 70)));
-        messages.add(new MessageBoard.Message("4", 1, Set.of(PlayerColor.PURPLE, PlayerColor.YELLOW), Set.of(4)));
-        messages.add(new MessageBoard.Message("5", 0, Set.of(PlayerColor.RED), Set.of(12, 33, 46)));
-        return messages;
-    }
-
-    private static Map<PlayerColor, Integer> getInitialScorersPointsMap() {
-        Map<PlayerColor, Integer> map = new HashMap<>();
-        map.put(PlayerColor.RED, 3);
-        map.put(PlayerColor.GREEN, 3);
-        map.put(PlayerColor.BLUE, 10);
-        map.put(PlayerColor.YELLOW, 22 + 1);
-        map.put(PlayerColor.PURPLE, 10 + 1);
-        return map;
-    }
-
-    private static Area<Zone.Forest> getOccupiedForestTemplate() {
-        return new Area<>(Set.of(new Zone.Forest(11, Zone.Forest.Kind.PLAIN), new Zone.Forest(22, Zone.Forest.Kind.PLAIN),
-                new Zone.Forest(33, Zone.Forest.Kind.WITH_MENHIR), new Zone.Forest(44, Zone.Forest.Kind.WITH_MUSHROOMS)),
-                List.of(PlayerColor.RED, PlayerColor.GREEN, PlayerColor.RED), 0);
-    }
-
-    private static Area<Zone.Forest> getUnoccupiedForestTemplate() {
-        return new Area<>(Set.of(new Zone.Forest(11, Zone.Forest.Kind.PLAIN), new Zone.Forest(22, Zone.Forest.Kind.PLAIN),
-                new Zone.Forest(33, Zone.Forest.Kind.WITH_MENHIR), new Zone.Forest(44, Zone.Forest.Kind.WITH_MUSHROOMS)),
-                new ArrayList<>(), 0);
-    }
-
-    private static Area<Zone.River> getOccupiedRiverTemplate() {
-        return new Area<>(Set.of(new Zone.River(11, 2, null),
-                new Zone.River(22, 0, new Zone.Lake(28, 5, null)),
-                new Zone.River(33, 10, null)), List.of(PlayerColor.YELLOW, PlayerColor.GREEN, PlayerColor.GREEN),
-                5);
-    }
-
-    private static Area<Zone.River> getUnOccupiedRiverTemplate() {
-        return new Area<>(Set.of(new Zone.River(11, 2, null),
-                new Zone.River(22, 0, new Zone.Lake(28, 5, null)),
-                new Zone.River(33, 10, null)), new ArrayList<>(), 5);
-    }
-
-    List<MessageBoard.Message> addMessageAfterDefaultList(MessageBoard.Message message) {
-        var expectedMessage = new ArrayList<>(getInitialMessages());
-        expectedMessage.add(message);
-
-        return List.copyOf(expectedMessage);
-    }
-
-    MessageBoard.Message createMessage(Set<PlayerColor> scorer, int points, Function<ch.epfl.chacun.Tuples.Pair<Set<PlayerColor>, Integer>, String> message) {
-        return new MessageBoard.Message(message.apply(new ch.epfl.chacun.Tuples.Pair<>(scorer, points)), points, scorer, Set.of());
-    }
-
-    MessageBoard.Message createMessage(Set<PlayerColor> scorer, int points, Function<ch.epfl.chacun.Tuples.Pair<Set<PlayerColor>, Integer>, String> message, Integer... tileId) {
-        return new MessageBoard.Message(message.apply(new ch.epfl.chacun.Tuples.Pair<>(scorer, points)), points, scorer, Set.of(tileId));
-    }
-
-    MessageBoard.Message createMessage(PlayerColor scorer, int points, Function<ch.epfl.chacun.Tuples.Pair<PlayerColor, Integer>, String> message) {
-        return new MessageBoard.Message(message.apply(new ch.epfl.chacun.Tuples.Pair<>(scorer, points)), points, Set.of(scorer), Set.of());
-    }
-
-    MessageBoard.Message createMessage(PlayerColor scorer, int points, Function<Tuples.Pair<PlayerColor, Integer>, String> message, Integer... tileID) {
-        return new MessageBoard.Message(message.apply(new Tuples.Pair<>(scorer, points)), points, Set.of(scorer), Set.of(tileID));
+class MessageBoardTest {
+    @Test
+    void messageBoardMessageConstructorThrowsIfTextIsNull() {
+        assertThrows(NullPointerException.class, () -> {
+            new MessageBoard.Message(null, 0, Set.of(), Set.of());
+        });
     }
 
     @Test
-    void messageConstructorThrowsIllegalArgumentExceptionIfArgumentsAreNull() {
-        assertThrows(IllegalArgumentException.class, () -> new MessageBoard.Message(null, 0, new HashSet<>(), new HashSet<>()));
-        assertThrows(IllegalArgumentException.class, () -> new MessageBoard.Message("", 0, null, new HashSet<>()));
-        assertThrows(IllegalArgumentException.class, () -> new MessageBoard.Message("", 0, new HashSet<>(), null));
+    void messageBoardMessageConstructorThrowsIfPointsAreNegative() {
+        assertThrows(IllegalArgumentException.class, () -> {
+            new MessageBoard.Message("", -1, Set.of(), Set.of());
+        });
     }
 
     @Test
-    void messageConstructorThrowsIllegalArgumentExceptionIfPointsAreNegative() {
-        assertThrows(IllegalArgumentException.class, () -> new MessageBoard.Message("", -1, new HashSet<>(), new HashSet<>()));
+    void messageBoardMessageIsImmutable() {
+        var immutableScorers = Set.of(RED, BLUE);
+        var immutableTileIds = Set.of(1, 2, 3);
+
+        var mutableScorers = new HashSet<>(immutableScorers);
+        var mutableTileIds = new HashSet<>(immutableTileIds);
+
+        var m = new MessageBoard.Message("", 0, mutableScorers, mutableTileIds);
+        mutableScorers.clear();
+        mutableTileIds.clear();
+
+        assertEquals(immutableScorers, m.scorers());
+        assertEquals(immutableTileIds, m.tileIds());
+
+        try {
+            m.scorers().clear();
+        } catch (UnsupportedOperationException e) {
+            /* nothing to do if scorers are not modifiable */
+        }
+        try {
+            m.tileIds().clear();
+        } catch (UnsupportedOperationException e) {
+            /* nothing to do if tileIds are not modifiable */
+        }
+        assertEquals(immutableScorers, m.scorers());
+        assertEquals(immutableTileIds, m.tileIds());
     }
 
     @Test
-    void messageConstructorGuaranteesImmutabilityOfTheRecord() {
-        Set<PlayerColor> scorers = new HashSet<>(Set.of(PlayerColor.RED, PlayerColor.GREEN, PlayerColor.YELLOW));
-        Set<Integer> tileIds = new HashSet<>(Set.of(1, 2, 3, 4, 5, 6, 7));
-        MessageBoard.Message expectedMessage = new MessageBoard.Message("", 2, scorers, tileIds);
-        scorers.remove(PlayerColor.RED);
-        tileIds.clear();
-        MessageBoard.Message actualMessage = new MessageBoard.Message("", 2, scorers, tileIds);
-        assertNotEquals(expectedMessage, actualMessage);
+    void messageBoardIsImmutable() {
+        var m = new MessageBoard.Message("", 0, Set.of(), Set.of());
+        var immutableMessages = List.of(m, m, m);
+        var mutableMessages = new ArrayList<>(immutableMessages);
+        var mb = new MessageBoard(new BasicTextMaker(), mutableMessages);
+        mutableMessages.clear();
+        assertEquals(immutableMessages, mb.messages());
+
+        try {
+            mb.messages().clear();
+        } catch (UnsupportedOperationException e) {
+            /* nothing to do if messages are not modifiable */
+        }
+        assertEquals(immutableMessages, mb.messages());
+    }
+
+    private static MessageBoard.Message emptyMessage(int points, PlayerColor... players) {
+        return new MessageBoard.Message("", points, Set.of(players), Set.of());
     }
 
     @Test
-    void pointsReturnsCorrectMap() {
-        MessageBoard messageBoard = new MessageBoard(TEXT_MAKER, getInitialMessages());
-        assertEquals(getInitialScorersPointsMap(), messageBoard.points());
-    }
+    void messageBoardPointsWorks() {
+        var messages = List.of(
+                emptyMessage(1 << 0, RED),
+                emptyMessage(1 << 1, RED, BLUE, PURPLE),
+                emptyMessage(1 << 2, RED, GREEN),
+                emptyMessage(1 << 3, RED, GREEN),
+                emptyMessage(1 << 4, RED, PURPLE));
+        var messageBoard = new MessageBoard(new BasicTextMaker(), messages);
 
-    /*@Test
-    void withScoredForestReturnsMessageBoardWithCorrectAdditionalMessageIfForestIsOccupied() {
-        List<MessageBoard.Message> expectedMessages = getInitialMessages();
-        expectedMessages.add(new MessageBoard.Message(TEXT_MAKER.playersScoredForest(Set.of(PlayerColor.RED)
-                , Points.forClosedForest(4, 1), 1, 4), Points.forClosedForest(4, 1), Set.of(PlayerColor.RED), Set.of(1, 2, 3, 4)));
-        MessageBoard expectedMessageBoard = new MessageBoard(TEXT_MAKER, expectedMessages);
-
-        MessageBoard actualMessageBoard = new MessageBoard(TEXT_MAKER, getInitialMessages());
-        actualMessageBoard = actualMessageBoard.withScoredForest(getOccupiedForestTemplate());
-
-        assertEquals(expectedMessageBoard, actualMessageBoard);
-    }
-
-    @Test
-    void withScoredForestReturnsMessageBoardUnchangedIfForestIsNotOccupied() {
-        assertEquals(new MessageBoard(TEXT_MAKER, getInitialMessages()), new MessageBoard(TEXT_MAKER, getInitialMessages()).withScoredForest(getUnoccupiedForestTemplate()));
-    }*/
-
-    @Test
-    void withClosedForestWithMenhirReturnsMessageBoardWithCorrectAdditionalMessage() {
-        List<MessageBoard.Message> expectedMessages = getInitialMessages();
-        expectedMessages.add(new MessageBoard.Message(TEXT_MAKER.playerClosedForestWithMenhir(PlayerColor.RED),
-                0, new HashSet<>(), Set.of(1, 2, 3, 4)));
-        MessageBoard expectedMessageBoard = new MessageBoard(TEXT_MAKER, expectedMessages);
-
-        MessageBoard actualMessageBoard = new MessageBoard(TEXT_MAKER, getInitialMessages());
-        actualMessageBoard = actualMessageBoard.withClosedForestWithMenhir(PlayerColor.RED, getOccupiedForestTemplate());
-
-        assertEquals(expectedMessageBoard, actualMessageBoard);
+        var points = messageBoard.points();
+        assertEquals(31, points.getOrDefault(RED, 0));
+        assertEquals(2, points.getOrDefault(BLUE, 0));
+        assertEquals(12, points.getOrDefault(GREEN, 0));
+        assertEquals(18, points.getOrDefault(PURPLE, 0));
+        assertEquals(0, points.getOrDefault(YELLOW, 0));
     }
 
     @Test
-    void withScoredRiverReturnsMessageBoardWithCorrectMessageIfRiverIsOccupied() {
-        List<MessageBoard.Message> expectedMessages = getInitialMessages();
-        expectedMessages.add(new MessageBoard.Message(TEXT_MAKER.playersScoredRiver(Set.of(PlayerColor.GREEN)
-                , Points.forClosedRiver(3, 17), 17, 3), Points.forClosedRiver(3, 17),
-                Set.of(PlayerColor.GREEN), Set.of(1, 2, 3)));
-        MessageBoard expectedMessageBoard = new MessageBoard(TEXT_MAKER, expectedMessages);
-
-        MessageBoard actualMessageBoard = new MessageBoard(TEXT_MAKER, getInitialMessages());
-        actualMessageBoard = actualMessageBoard.withScoredRiver(getOccupiedRiverTemplate());
-
-        assertEquals(expectedMessageBoard, actualMessageBoard);
+    void messageBoardWithScoredForestWorksWithUnoccupiedForest() {
+        var f1 = new Zone.Forest(10, Kind.PLAIN);
+        var f2 = new Zone.Forest(20, Kind.PLAIN);
+        var forestArea = new Area<>(Set.of(f1, f2), List.of(), 0);
+        var mb = new MessageBoard(new BasicTextMaker(), List.of());
+        mb = mb.withScoredForest(forestArea);
+        assertEquals(List.of(), mb.messages());
     }
 
     @Test
-    void withScoredRiverReturnsMessageBoardUnchangedIfRiverIsNotOccupied() {
-        assertEquals(new MessageBoard(TEXT_MAKER, getInitialMessages()), new MessageBoard(TEXT_MAKER, getInitialMessages()).withScoredRiver(getUnOccupiedRiverTemplate()));
+    void messageBoardWithScoredForestWorksWithOccupiedForest() {
+        var f1 = new Zone.Forest(10, Kind.PLAIN);
+        var f2 = new Zone.Forest(20, Kind.WITH_MUSHROOMS);
+        var forestArea = new Area<>(Set.of(f1, f2), List.of(RED), 0);
+        var mb = new MessageBoard(new BasicTextMaker(), List.of());
+        mb = mb.withScoredForest(forestArea);
+        var expectedMessage = new MessageBoard.Message("{RED}|7|1|2", 7, Set.of(RED), Set.of(1, 2));
+        assertEquals(List.of(expectedMessage), mb.messages());
     }
 
     @Test
-    void withScoredHuntingTrap() {
-
+    void messageBoardWithClosedForestWithMenhirWorks() {
+        var f1 = new Zone.Forest(10, Kind.PLAIN);
+        var f2 = new Zone.Forest(20, Kind.WITH_MENHIR);
+        var forestArea = new Area<>(Set.of(f1, f2), List.of(), 0);
+        var mb = new MessageBoard(new BasicTextMaker(), List.of());
+        mb = mb.withClosedForestWithMenhir(YELLOW, forestArea);
+        var expectedMessage = new MessageBoard.Message("YELLOW", 0, Set.of(), Set.of(1, 2));
+        assertEquals(1, mb.messages().size());
+        assertEquals(expectedMessage.text(), mb.messages().getFirst().text());
+        assertEquals(expectedMessage.points(), mb.messages().getFirst().points());
+        assertEquals(expectedMessage.scorers(), mb.messages().getFirst().scorers());
+        // We accept both, as the stage description was not clear about that.
+        assertTrue(mb.messages().getFirst().tileIds().isEmpty()
+                   || mb.messages().getFirst().tileIds().equals(expectedMessage.tileIds()));
     }
 
     @Test
-    void withScoredLogboatOneLake() {
-        var messageBoard = new MessageBoard(TEXT_MAKER, getInitialMessages());
-
-        var expectedMessages = addMessageAfterDefaultList(
-                createMessage(PlayerColor.RED, Points.forLogboat(1), pair -> TEXT_MAKER.playerScoredLogboat(pair.a(), pair.b(), 1), 10, 12, 13)
-        );
-
-        Area<Zone.Water> riverSystem = ch.epfl.chacun.ChaCuNUtils.createAreaWithNoOccupant(
-                3,
-                ch.epfl.chacun.ChaCuNUtils.createLake(101, 5, Zone.SpecialPower.LOGBOAT),
-                ChaCuNUtils.createRiverZone(103, 2),
-                ChaCuNUtils.createRiverZone(125, 2),
-                ChaCuNUtils.createRiverZone(136, 2)
-        );
-
-        assertEquals(expectedMessages, messageBoard.withScoredLogboat(PlayerColor.RED, riverSystem).messages());
+    void messageBoardWithScoredRiverWorksWithUnoccupiedRiver() {
+        var r1 = new Zone.River(10, 1, null);
+        var r2 = new Zone.River(20, 2, null);
+        var riverArea = new Area<>(Set.of(r1, r2), List.of(), 0);
+        var mb = new MessageBoard(new BasicTextMaker(), List.of());
+        mb = mb.withScoredRiver(riverArea);
+        assertEquals(List.of(), mb.messages());
     }
 
     @Test
-    void withScoredLogboatManyLake() {
-        var messageBoard = new MessageBoard(TEXT_MAKER, getInitialMessages());
-
-        var expectedMessages = addMessageAfterDefaultList(
-                createMessage(PlayerColor.RED, Points.forLogboat(2), pair -> TEXT_MAKER.playerScoredLogboat(pair.a(), pair.b(), 2), 10, 12, 13)
-        );
-
-        Area<Zone.Water> riverSystem = ChaCuNUtils.createAreaWithNoOccupant(
-                3,
-                ChaCuNUtils.createLake(101, 5, Zone.SpecialPower.LOGBOAT),
-                ChaCuNUtils.createLake(102, 5, Zone.SpecialPower.LOGBOAT),
-                ChaCuNUtils.createRiverZone(103, 2),
-                ChaCuNUtils.createRiverZone(125, 2),
-                ChaCuNUtils.createRiverZone(136, 2)
-        );
-
-        assertEquals(expectedMessages, messageBoard.withScoredLogboat(PlayerColor.RED, riverSystem).messages());
+    void messageBoardWithScoredRiverWorksWithOccupiedRiver() {
+        var r1 = new Zone.River(10, 1, null);
+        var r2 = new Zone.River(20, 4, null);
+        var riverArea = new Area<>(Set.of(r1, r2), List.of(BLUE), 0);
+        var mb = new MessageBoard(new BasicTextMaker(), List.of());
+        mb = mb.withScoredRiver(riverArea);
+        var expectedMessage = new MessageBoard.Message("{BLUE}|7|5|2", 7, Set.of(BLUE), Set.of(1, 2));
+        assertEquals(List.of(expectedMessage), mb.messages());
     }
 
     @Test
-    void withScoredLogboatNoLakeException() {
-        var messageBoard = new MessageBoard(TEXT_MAKER, getInitialMessages());
-
-        Area<Zone.Water> riverSystem = ChaCuNUtils.createAreaWithNoOccupant(
-                3,
-                ChaCuNUtils.createRiverZone(103, 2),
-                ChaCuNUtils.createRiverZone(125, 2),
-                ChaCuNUtils.createRiverZone(136, 2)
-        );
-
-        assertThrows(IllegalArgumentException.class, () -> messageBoard.withScoredLogboat(PlayerColor.RED, riverSystem));
+    void messageBoardWithScoredHuntingTrapWorksWithUnworthyAnimals() {
+        var m1 = new Zone.Meadow(10, List.of(new Animal(10_1, Animal.Kind.TIGER)), null);
+        var m2 = new Zone.Meadow(20, List.of(new Animal(20_1, Animal.Kind.TIGER)), null);
+        var m3 = new Zone.Meadow(30, List.of(), SpecialPower.HUNTING_TRAP);
+        var meadowArea = new Area<>(Set.of(m1, m2, m3), List.of(RED), 0);
+        var mb = new MessageBoard(new BasicTextMaker(), List.of());
+        mb = mb.withScoredHuntingTrap(BLUE, meadowArea);
+        assertEquals(List.of(), mb.messages());
     }
 
     @Test
-    void withScoredMeadowOneAnimalOneOccupant() {
-        var messageBoard = new MessageBoard(TEXT_MAKER, getInitialMessages());
-
-        var expectedMessages = addMessageAfterDefaultList(
-                createMessage(
-                        PlayerColor.BLUE,
-                        Points.forMeadow(0, 0, 1),
-                        pair -> TEXT_MAKER.playersScoredMeadow(Set.of(pair.a()), pair.b(), Map.of(Animal.Kind.DEER, 1)),
-                        10
-                )
-        );
-
-        Area<Zone.Meadow> meadowArea = ChaCuNUtils.createClosedAreaWithOccupants(
-                List.of(PlayerColor.BLUE),
-                ChaCuNUtils.createMeadowZone(
-                        101,
-                        new Animal(1012, Animal.Kind.DEER)
-                )
-        );
-
-        assertEquals(expectedMessages, messageBoard.withScoredMeadow(meadowArea, Set.of()).messages());
+    void messageBoardWithScoredHuntingTrapWorksWithWorthyAnimals() {
+        var m1 = new Zone.Meadow(10, List.of(new Animal(10_1, Animal.Kind.MAMMOTH)), null);
+        var m2 = new Zone.Meadow(20, List.of(new Animal(20_1, Animal.Kind.AUROCHS)), null);
+        var m3 = new Zone.Meadow(30, List.of(), SpecialPower.HUNTING_TRAP);
+        var meadowArea = new Area<>(Set.of(m1, m2, m3), List.of(RED, GREEN), 0);
+        var mb = new MessageBoard(new BasicTextMaker(), List.of());
+        mb = mb.withScoredHuntingTrap(BLUE, meadowArea);
+        var expectedMessage = new MessageBoard.Message("BLUE|5|1×MAMMOTH/1×AUROCHS/0×DEER/0×TIGER", 5, Set.of(BLUE), Set.of(1, 2, 3));
+        assertEquals(List.of(expectedMessage), mb.messages());
     }
 
     @Test
-    void withScoredMeadowManyAnimalsOneOccupant() {
-        var messageBoard = new MessageBoard(TEXT_MAKER, getInitialMessages());
+    void messageBoardWithScoredLogboatWorks() {
+        var l1 = new Zone.Lake(18, 1, null);
+        var r1 = new Zone.River(10, 4, l1);
 
-        var points = Points.forMeadow(2, 2, 2);
-        var animalToNumberMap = Map.of(Animal.Kind.DEER, 2, Animal.Kind.AUROCHS, 2, Animal.Kind.MAMMOTH, 2);
-        var expectedMessages = addMessageAfterDefaultList(
-                createMessage(
-                        PlayerColor.BLUE,
-                        points,
-                        pair -> TEXT_MAKER.playersScoredMeadow(Set.of(pair.a()), pair.b(), animalToNumberMap),
-                        10
-                )
-        );
+        var l2 = new Zone.Lake(28, 2, null);
+        var r2 = new Zone.River(20, 5, l2);
+        var r3 = new Zone.River(21, 5, l2);
 
-        Area<Zone.Meadow> meadowArea = ChaCuNUtils.createClosedAreaWithOccupants(
-                List.of(PlayerColor.BLUE),
-                ChaCuNUtils.createMeadowZone(
-                        101,
-                        new Animal(1012, Animal.Kind.DEER),
-                        new Animal(1013, Animal.Kind.DEER),
-                        new Animal(1014, Animal.Kind.MAMMOTH),
-                        new Animal(1015, Animal.Kind.MAMMOTH),
-                        new Animal(1016, Animal.Kind.AUROCHS),
-                        new Animal(1017, Animal.Kind.AUROCHS)
-                )
-        );
+        var l3 = new Zone.Lake(38, 3, null);
+        var r4 = new Zone.River(30, 5, l3);
 
-        assertEquals(expectedMessages, messageBoard.withScoredMeadow(meadowArea, Set.of()).messages());
+        var riverSystem = new Area<Water>(Set.of(l1, r1, l2, r2, r3, l3, r4), List.of(RED), 0);
+
+        var mb = new MessageBoard(new BasicTextMaker(), List.of());
+        mb = mb.withScoredLogboat(BLUE, riverSystem);
+        var expectedMessage = new MessageBoard.Message("BLUE|6|3", 6, Set.of(BLUE), Set.of(1, 2, 3));
+        assertEquals(List.of(expectedMessage), mb.messages());
     }
 
     @Test
-    void withScoredMeadowManyAnimalsManyZonesOneOccupant() {
-        var messageBoard = new MessageBoard(TEXT_MAKER, getInitialMessages());
-
-        var points = Points.forMeadow(2, 2, 2);
-        var animalToNumberMap = Map.of(Animal.Kind.DEER, 2, Animal.Kind.AUROCHS, 2, Animal.Kind.MAMMOTH, 2);
-        var expectedMessages = addMessageAfterDefaultList(
-                createMessage(
-                        PlayerColor.BLUE,
-                        points,
-                        pair -> TEXT_MAKER.playersScoredMeadow(Set.of(pair.a()), pair.b(), animalToNumberMap),
-                        10, 11, 20
-                )
-        );
-
-        Area<Zone.Meadow> meadowArea = ChaCuNUtils.createClosedAreaWithOccupants(
-                List.of(PlayerColor.BLUE),
-                ChaCuNUtils.createMeadowZone(
-                        101,
-                        new Animal(1012, Animal.Kind.DEER),
-                        new Animal(1013, Animal.Kind.DEER)
-                ),
-                ChaCuNUtils.createMeadowZone(
-                        201,
-                        new Animal(1014, Animal.Kind.MAMMOTH),
-                        new Animal(1015, Animal.Kind.MAMMOTH)
-                ),
-                ChaCuNUtils.createMeadowZone(
-                        111,
-                        new Animal(1016, Animal.Kind.AUROCHS),
-                        new Animal(1017, Animal.Kind.AUROCHS)
-                )
-        );
-
-        assertEquals(expectedMessages, messageBoard.withScoredMeadow(meadowArea, Set.of()).messages());
+    void messageBoardWithScoredMeadowWorksWithUnoccupiedMeadow() {
+        var m1 = new Zone.Meadow(10, List.of(new Animal(10_1, Animal.Kind.MAMMOTH)), null);
+        var m2 = new Zone.Meadow(20, List.of(new Animal(20_1, Animal.Kind.AUROCHS)), null);
+        var m3 = new Zone.Meadow(30, List.of(), SpecialPower.HUNTING_TRAP);
+        var meadowArea = new Area<>(Set.of(m1, m2, m3), List.of(), 3);
+        var mb = new MessageBoard(new BasicTextMaker(), List.of());
+        mb = mb.withScoredMeadow(meadowArea, Set.of());
+        assertEquals(List.of(), mb.messages());
     }
 
     @Test
-    void withScoredMeadowManyAnimalsManyZonesManyOccupants() {
-        var messageBoard = new MessageBoard(TEXT_MAKER, getInitialMessages());
-
-        var points = Points.forMeadow(2, 2, 2);
-        var animalToNumberMap = Map.of(Animal.Kind.DEER, 2, Animal.Kind.AUROCHS, 2, Animal.Kind.MAMMOTH, 2);
-        var expectedMessages = addMessageAfterDefaultList(
-                createMessage(
-                        PlayerColor.BLUE,
-                        points,
-                        pair -> TEXT_MAKER.playersScoredMeadow(Set.of(pair.a()), pair.b(), animalToNumberMap),
-                        10, 11, 20
-                )
-        );
-
-        Area<Zone.Meadow> meadowArea = ChaCuNUtils.createClosedAreaWithOccupants(
-                List.of(PlayerColor.BLUE, PlayerColor.RED, PlayerColor.BLUE),
-                ChaCuNUtils.createMeadowZone(
-                        101,
-                        new Animal(1012, Animal.Kind.DEER),
-                        new Animal(1013, Animal.Kind.DEER)
-                ),
-                ChaCuNUtils.createMeadowZone(
-                        201,
-                        new Animal(1014, Animal.Kind.MAMMOTH),
-                        new Animal(1015, Animal.Kind.MAMMOTH)
-                ),
-                ChaCuNUtils.createMeadowZone(
-                        111,
-                        new Animal(1016, Animal.Kind.AUROCHS),
-                        new Animal(1017, Animal.Kind.AUROCHS)
-                )
-        );
-
-        assertEquals(expectedMessages, messageBoard.withScoredMeadow(meadowArea, Set.of()).messages());
+    void messageBoardWithScoredMeadowWorksWithUnworthyAnimals() {
+        var m1 = new Zone.Meadow(10, List.of(new Animal(10_1, Animal.Kind.TIGER)), null);
+        var m2 = new Zone.Meadow(20, List.of(new Animal(20_1, Animal.Kind.TIGER)), null);
+        var m3 = new Zone.Meadow(30, List.of(), null);
+        var meadowArea = new Area<>(Set.of(m1, m2, m3), List.of(RED, BLUE), 3);
+        var mb = new MessageBoard(new BasicTextMaker(), List.of());
+        mb = mb.withScoredMeadow(meadowArea, Set.of());
+        assertEquals(List.of(), mb.messages());
     }
 
     @Test
-    void withScoredMeadowManyAnimalsManyZonesManyMajorityOccupants() {
-        var messageBoard = new MessageBoard(TEXT_MAKER, getInitialMessages());
-
-        var points = Points.forMeadow(2, 2, 2);
-        var animalToNumberMap = Map.of(Animal.Kind.DEER, 2, Animal.Kind.AUROCHS, 2, Animal.Kind.MAMMOTH, 2);
-        var expectedMessages = addMessageAfterDefaultList(
-                createMessage(
-                        Set.of(PlayerColor.BLUE, PlayerColor.RED),
-                        points,
-                        pair -> TEXT_MAKER.playersScoredMeadow(pair.a(), pair.b(), animalToNumberMap),
-                        10, 11, 20
-                )
-        );
-
-        Area<Zone.Meadow> meadowArea = ChaCuNUtils.createClosedAreaWithOccupants(
-                List.of(PlayerColor.BLUE, PlayerColor.RED, PlayerColor.BLUE, PlayerColor.RED),
-                ChaCuNUtils.createMeadowZone(
-                        101,
-                        new Animal(1012, Animal.Kind.DEER),
-                        new Animal(1013, Animal.Kind.DEER)
-                ),
-                ChaCuNUtils.createMeadowZone(
-                        201,
-                        new Animal(1014, Animal.Kind.MAMMOTH),
-                        new Animal(1015, Animal.Kind.MAMMOTH)
-                ),
-                ChaCuNUtils.createMeadowZone(
-                        111,
-                        new Animal(1016, Animal.Kind.AUROCHS),
-                        new Animal(1017, Animal.Kind.AUROCHS)
-                )
-        );
-
-        assertEquals(expectedMessages, messageBoard.withScoredMeadow(meadowArea, Set.of()).messages());
+    void messageBoardWithScoredMeadowWorksWithWorthyButCancelledAnimals() {
+        var a1 = new Animal(10_1, Animal.Kind.MAMMOTH);
+        var a2 = new Animal(20_1, Animal.Kind.AUROCHS);
+        var a3 = new Animal(20_2, Animal.Kind.TIGER);
+        var m1 = new Zone.Meadow(10, List.of(a1), null);
+        var m2 = new Zone.Meadow(20, List.of(a2, a3), null);
+        var m3 = new Zone.Meadow(30, List.of(), null);
+        var meadowArea = new Area<>(Set.of(m1, m2, m3), List.of(RED, BLUE), 3);
+        var mb = new MessageBoard(new BasicTextMaker(), List.of());
+        mb = mb.withScoredMeadow(meadowArea, Set.of(a1, a2));
+        assertEquals(List.of(), mb.messages());
     }
 
     @Test
-    void withScoredMeadowManyAnimalsWithCancelledAnimals() {
-        var messageBoard = new MessageBoard(TEXT_MAKER, getInitialMessages());
-
-        var cancelledAnimals = Set.of(
-                new Animal(1012, Animal.Kind.DEER),
-                new Animal(1015, Animal.Kind.MAMMOTH)
-        );
-        var points = Points.forMeadow(1, 2, 1);
-        var animalToNumberMap = Map.of(Animal.Kind.DEER, 1, Animal.Kind.AUROCHS, 2, Animal.Kind.MAMMOTH, 1);
-
-        var expectedMessages = addMessageAfterDefaultList(
-                createMessage(
-                        Set.of(PlayerColor.BLUE, PlayerColor.RED),
-                        points,
-                        pair -> TEXT_MAKER.playersScoredMeadow(pair.a(), pair.b(), animalToNumberMap),
-                        10, 11, 20
-                )
-        );
-
-        Area<Zone.Meadow> meadowArea = ChaCuNUtils.createClosedAreaWithOccupants(
-                List.of(PlayerColor.BLUE, PlayerColor.RED, PlayerColor.BLUE, PlayerColor.RED),
-                ChaCuNUtils.createMeadowZone(
-                        101,
-                        new Animal(1012, Animal.Kind.DEER),
-                        new Animal(1013, Animal.Kind.DEER)
-                ),
-                ChaCuNUtils.createMeadowZone(
-                        201,
-                        new Animal(1014, Animal.Kind.MAMMOTH),
-                        new Animal(1015, Animal.Kind.MAMMOTH)
-                ),
-                ChaCuNUtils.createMeadowZone(
-                        111,
-                        new Animal(1016, Animal.Kind.AUROCHS),
-                        new Animal(1017, Animal.Kind.AUROCHS)
-                )
-        );
-
-        assertEquals(expectedMessages, messageBoard.withScoredMeadow(meadowArea, cancelledAnimals).messages());
+    void messageBoardWithScoredMeadowWorksWithWorthyAnimals() {
+        var a1 = new Animal(10_1, Animal.Kind.MAMMOTH);
+        var a2 = new Animal(20_1, Animal.Kind.AUROCHS);
+        var a3 = new Animal(20_2, Animal.Kind.TIGER);
+        var m1 = new Zone.Meadow(10, List.of(a1), null);
+        var m2 = new Zone.Meadow(20, List.of(a2, a3), null);
+        var m3 = new Zone.Meadow(30, List.of(), null);
+        var meadowArea = new Area<>(Set.of(m1, m2, m3), List.of(RED, BLUE), 3);
+        var mb = new MessageBoard(new BasicTextMaker(), List.of());
+        mb = mb.withScoredMeadow(meadowArea, Set.of());
+        var expectedMessage = new MessageBoard.Message("{RED,BLUE}|5|1×MAMMOTH/1×AUROCHS/0×DEER/1×TIGER", 5, Set.of(RED, BLUE), Set.of(1, 2, 3));
+        assertEquals(List.of(expectedMessage), mb.messages());
     }
 
     @Test
-    void withScoredMeadowNoAnimals() {
-        var messageBoard = new MessageBoard(TEXT_MAKER, getInitialMessages());
+    void messageBoardWithScoredRiverSystemWorksWithUnoccupiedRiverSystem() {
+        var l1 = new Zone.Lake(18, 1, null);
+        var r1 = new Zone.River(10, 4, l1);
 
-        Area<Zone.Meadow> meadowArea = ChaCuNUtils.createClosedAreaWithOccupants(
-                List.of(PlayerColor.BLUE),
-                ChaCuNUtils.createMeadowZone(
-                        101
-                )
-        );
+        var l2 = new Zone.Lake(28, 2, null);
+        var r2 = new Zone.River(20, 5, l2);
+        var r3 = new Zone.River(21, 5, l2);
 
-        assertEquals(getInitialMessages(), messageBoard.withScoredMeadow(meadowArea, Set.of()).messages());
+        var l3 = new Zone.Lake(38, 3, null);
+        var r4 = new Zone.River(30, 5, l3);
+
+        var riverSystem = new Area<Water>(Set.of(l1, r1, l2, r2, r3, l3, r4), List.of(), 0);
+
+        var mb = new MessageBoard(new BasicTextMaker(), List.of());
+        mb = mb.withScoredRiverSystem(riverSystem);
+        assertEquals(List.of(), mb.messages());
     }
 
     @Test
-    void withScoredMeadowNoOccupants() {
-        var messageBoard = new MessageBoard(TEXT_MAKER, getInitialMessages());
+    void messageBoardWithScoredRiverSystemWorksWithFishlessRiverSystem() {
+        var l1 = new Zone.Lake(18, 0, null);
+        var r1 = new Zone.River(10, 0, l1);
 
-        Area<Zone.Meadow> meadowArea = ChaCuNUtils.createClosedAreaWithNoOccupants(
-                ChaCuNUtils.createMeadowZone(
-                        101
-                )
-        );
+        var l2 = new Zone.Lake(28, 0, null);
+        var r2 = new Zone.River(20, 0, l2);
+        var r3 = new Zone.River(21, 0, l2);
 
-        assertEquals(getInitialMessages(), messageBoard.withScoredMeadow(meadowArea, Set.of()).messages());
+        var l3 = new Zone.Lake(38, 0, null);
+        var r4 = new Zone.River(30, 0, l3);
+
+        var riverSystem = new Area<Water>(Set.of(l1, r1, l2, r2, r3, l3, r4), List.of(RED), 0);
+
+        var mb = new MessageBoard(new BasicTextMaker(), List.of());
+        mb = mb.withScoredRiverSystem(riverSystem);
+        assertEquals(List.of(), mb.messages());
     }
 
     @Test
-    void withScoredRiverSystemOneOccupant() {
-        var messageBoard = new MessageBoard(TEXT_MAKER, getInitialMessages());
+    void messageBoardWithScoredRiverSystemWorks() {
+        var l1 = new Zone.Lake(18, 3, null);
+        var r1 = new Zone.River(10, 1, l1);
 
-        final var fishCount = 5 + 3 + 7 + 22;
-        var expectedMessages = addMessageAfterDefaultList(
-                createMessage(PlayerColor.BLUE, Points.forRiverSystem(fishCount), pair -> TEXT_MAKER.playersScoredRiverSystem(Set.of(pair.a()), pair.b(), fishCount), 10, 11, 12)
-        );
+        var l2 = new Zone.Lake(28, 2, null);
+        var r2 = new Zone.River(20, 1, l2);
+        var r3 = new Zone.River(21, 1, l2);
 
-        Area<Zone.Water> riverSystem = ChaCuNUtils.createClosedAreaWithOccupants(
-                List.of(PlayerColor.BLUE),
-                ChaCuNUtils.createRiverZone(101, 5),
-                ChaCuNUtils.createRiverZone(102, 3),
-                ChaCuNUtils.createRiverZone(111, 7),
-                ChaCuNUtils.createRiverZone(121, 22)
-        );
+        var l3 = new Zone.Lake(38, 3, null);
+        var r4 = new Zone.River(30, 1, l3);
 
-        assertEquals(expectedMessages, messageBoard.withScoredRiverSystem(riverSystem).messages());
+        var riverSystem = new Area<Water>(Set.of(l1, r1, l2, r2, r3, l3, r4), List.of(RED, BLUE), 0);
+
+        var mb = new MessageBoard(new BasicTextMaker(), List.of());
+        mb = mb.withScoredRiverSystem(riverSystem);
+        var expectedMessage = new MessageBoard.Message("{RED,BLUE}|12|12", 12, Set.of(RED, BLUE), Set.of(1, 2, 3));
+        assertEquals(List.of(expectedMessage), mb.messages());
     }
 
     @Test
-    void withScoredRiverSystemManyOccupant() {
-        var messageBoard = new MessageBoard(TEXT_MAKER, getInitialMessages());
-
-        final var fishCount = 5 + 3 + 7 + 22;
-        var expectedMessages = addMessageAfterDefaultList(
-                createMessage(PlayerColor.BLUE, Points.forRiverSystem(fishCount), pair -> TEXT_MAKER.playersScoredRiverSystem(Set.of(pair.a()), pair.b(), fishCount), 10, 11, 12)
-        );
-
-        Area<Zone.Water> riverSystem = ChaCuNUtils.createClosedAreaWithOccupants(
-                List.of(PlayerColor.BLUE, PlayerColor.RED, PlayerColor.BLUE),
-                ChaCuNUtils.createRiverZone(101, 5),
-                ChaCuNUtils.createRiverZone(102, 3),
-                ChaCuNUtils.createRiverZone(111, 7),
-                ChaCuNUtils.createRiverZone(121, 22)
-        );
-
-        assertEquals(expectedMessages, messageBoard.withScoredRiverSystem(riverSystem).messages());
+    void messageBoardWithScoredPitTrapWorksWithUnoccupiedMeadow() {
+        var m1 = new Zone.Meadow(10, List.of(new Animal(10_1, Animal.Kind.MAMMOTH)), null);
+        var m2 = new Zone.Meadow(20, List.of(new Animal(20_1, Animal.Kind.AUROCHS)), null);
+        var m3 = new Zone.Meadow(30, List.of(), SpecialPower.HUNTING_TRAP);
+        var meadowArea = new Area<>(Set.of(m1, m2, m3), List.of(), 3);
+        var mb = new MessageBoard(new BasicTextMaker(), List.of());
+        mb = mb.withScoredPitTrap(meadowArea, Set.of());
+        assertEquals(List.of(), mb.messages());
     }
 
     @Test
-    void withScoredRiverSystemManyMajorityOccupant() {
-        var messageBoard = new MessageBoard(TEXT_MAKER, getInitialMessages());
-
-        final var fishCount = 5 + 3 + 7 + 22;
-        var expectedMessages = addMessageAfterDefaultList(
-                createMessage(Set.of(PlayerColor.BLUE, PlayerColor.RED), Points.forRiverSystem(fishCount), pair -> TEXT_MAKER.playersScoredRiverSystem(pair.a(), pair.b(), fishCount), 10, 11, 12)
-        );
-
-        Area<Zone.Water> riverSystem = ChaCuNUtils.createClosedAreaWithOccupants(
-                List.of(PlayerColor.BLUE, PlayerColor.RED, PlayerColor.BLUE, PlayerColor.RED),
-                ChaCuNUtils.createRiverZone(101, 5),
-                ChaCuNUtils.createRiverZone(102, 3),
-                ChaCuNUtils.createRiverZone(111, 7),
-                ChaCuNUtils.createRiverZone(121, 22)
-        );
-
-        assertEquals(expectedMessages, messageBoard.withScoredRiverSystem(riverSystem).messages());
+    void messageBoardWithScoredPitTrapWorksWithUnworthyAnimals() {
+        var m1 = new Zone.Meadow(10, List.of(new Animal(10_1, Animal.Kind.TIGER)), null);
+        var m2 = new Zone.Meadow(20, List.of(new Animal(20_1, Animal.Kind.TIGER)), null);
+        var m3 = new Zone.Meadow(30, List.of(), null);
+        var meadowArea = new Area<>(Set.of(m1, m2, m3), List.of(RED, BLUE), 3);
+        var mb = new MessageBoard(new BasicTextMaker(), List.of());
+        mb = mb.withScoredPitTrap(meadowArea, Set.of());
+        assertEquals(List.of(), mb.messages());
     }
 
     @Test
-    void withScoredRiverSystemOneOccupantWithLakes() {
-        var messageBoard = new MessageBoard(TEXT_MAKER, getInitialMessages());
-
-        final var fishCount = 5 + 3 + 7 + 22 + 34 + 14;
-        var expectedMessages = addMessageAfterDefaultList(
-                createMessage(PlayerColor.BLUE, Points.forRiverSystem(fishCount), pair -> TEXT_MAKER.playersScoredRiverSystem(Set.of(pair.a()), pair.b(), fishCount), 9, 10, 11, 12)
-        );
-
-        Area<Zone.Water> riverSystem = ChaCuNUtils.createClosedAreaWithOccupants(
-                List.of(PlayerColor.BLUE),
-                ChaCuNUtils.createLake(91, 34),
-                ChaCuNUtils.createLake(92, 14),
-                ChaCuNUtils.createRiverZone(101, 5),
-                ChaCuNUtils.createRiverZone(102, 3),
-                ChaCuNUtils.createRiverZone(111, 7),
-                ChaCuNUtils.createRiverZone(121, 22)
-        );
-
-        assertEquals(expectedMessages, messageBoard.withScoredRiverSystem(riverSystem).messages());
+    void messageBoardWithScoredPitTrapWorksWithWorthyButCancelledAnimals() {
+        var a1 = new Animal(10_1, Animal.Kind.MAMMOTH);
+        var a2 = new Animal(20_1, Animal.Kind.AUROCHS);
+        var a3 = new Animal(20_2, Animal.Kind.TIGER);
+        var m1 = new Zone.Meadow(10, List.of(a1), null);
+        var m2 = new Zone.Meadow(20, List.of(a2, a3), null);
+        var m3 = new Zone.Meadow(30, List.of(), null);
+        var meadowArea = new Area<>(Set.of(m1, m2, m3), List.of(RED, BLUE), 3);
+        var mb = new MessageBoard(new BasicTextMaker(), List.of());
+        mb = mb.withScoredPitTrap(meadowArea, Set.of(a1, a2));
+        assertEquals(List.of(), mb.messages());
     }
 
     @Test
-    void withScoredRiverSystemOneOccupantWithLakesInRiver() {
-        var messageBoard = new MessageBoard(TEXT_MAKER, getInitialMessages());
-
-        final var fishCount = 5 + 3 + 7 + 22 + 34 + 14;
-        var expectedMessages = addMessageAfterDefaultList(
-                createMessage(PlayerColor.BLUE, Points.forRiverSystem(fishCount), pair -> TEXT_MAKER.playersScoredRiverSystem(Set.of(pair.a()), pair.b(), fishCount), 10, 11, 12)
-        );
-
-        Zone.Lake lake1 = ChaCuNUtils.createLake(108, 34);
-        Zone.Lake lake2 = ChaCuNUtils.createLake(118, 14);
-        Area<Zone.Water> riverSystem = ChaCuNUtils.createClosedAreaWithOccupants(
-                List.of(PlayerColor.BLUE),
-                ChaCuNUtils.createRiverZone(101, 5, lake1),
-                lake1,
-                ChaCuNUtils.createRiverZone(102, 3),
-                ChaCuNUtils.createRiverZone(111, 7, lake2),
-                lake2,
-                ChaCuNUtils.createRiverZone(121, 22)
-        );
-
-        assertEquals(expectedMessages, messageBoard.withScoredRiverSystem(riverSystem).messages());
+    void messageBoardWithScoredPitTrapWorksWithWorthyAnimals() {
+        var a1 = new Animal(10_1, Animal.Kind.MAMMOTH);
+        var a2 = new Animal(20_1, Animal.Kind.AUROCHS);
+        var a3 = new Animal(20_2, Animal.Kind.TIGER);
+        var m1 = new Zone.Meadow(10, List.of(a1), null);
+        var m2 = new Zone.Meadow(20, List.of(a2, a3), null);
+        var m3 = new Zone.Meadow(30, List.of(), null);
+        var meadowArea = new Area<>(Set.of(m1, m2, m3), List.of(RED, BLUE), 3);
+        var mb = new MessageBoard(new BasicTextMaker(), List.of());
+        mb = mb.withScoredPitTrap(meadowArea, Set.of());
+        var expectedMessage = new MessageBoard.Message("{RED,BLUE}|5|1×MAMMOTH/1×AUROCHS/0×DEER/1×TIGER", 5, Set.of(RED, BLUE), Set.of(1, 2, 3));
+        assertEquals(List.of(expectedMessage), mb.messages());
     }
 
     @Test
-    void withScoredRiverSystemNoPoints() {
-        var messageBoard = new MessageBoard(TEXT_MAKER, getInitialMessages());
+    void messageBoardWithScoredRaftWorksWithUnoccupiedRiverSystem() {
+        var l1 = new Zone.Lake(18, 1, null);
+        var r1 = new Zone.River(10, 4, l1);
 
-        Area<Zone.Water> riverSystem = ChaCuNUtils.createClosedAreaWithOccupants(
-                List.of(PlayerColor.BLUE),
-                ChaCuNUtils.createRiverZone(101, 0),
-                ChaCuNUtils.createRiverZone(102, 0),
-                ChaCuNUtils.createRiverZone(111, 0),
-                ChaCuNUtils.createRiverZone(121, 0)
-        );
+        var l2 = new Zone.Lake(28, 2, null);
+        var r2 = new Zone.River(20, 5, l2);
+        var r3 = new Zone.River(21, 5, l2);
 
-        assertEquals(getInitialMessages(), messageBoard.withScoredRiverSystem(riverSystem).messages());
+        var l3 = new Zone.Lake(38, 3, null);
+        var r4 = new Zone.River(30, 5, l3);
+
+        var riverSystem = new Area<Water>(Set.of(l1, r1, l2, r2, r3, l3, r4), List.of(), 0);
+
+        var mb = new MessageBoard(new BasicTextMaker(), List.of());
+        mb = mb.withScoredRaft(riverSystem);
+        assertEquals(List.of(), mb.messages());
     }
 
     @Test
-    void withScoredRiverSystemNoOccupants() {
-        var messageBoard = new MessageBoard(TEXT_MAKER, getInitialMessages());
+    void messageBoardWithScoredRaftWorksWithOccupiedRiverSystem() {
+        var l1 = new Zone.Lake(18, 1, null);
+        var r1 = new Zone.River(10, 4, l1);
 
-        Area<Zone.Water> riverSystem = ChaCuNUtils.createClosedAreaWithNoOccupants(
-                ChaCuNUtils.createRiverZone(101, 0),
-                ChaCuNUtils.createRiverZone(102, 0),
-                ChaCuNUtils.createRiverZone(111, 0),
-                ChaCuNUtils.createRiverZone(121, 0)
-        );
+        var l2 = new Zone.Lake(28, 2, null);
+        var r2 = new Zone.River(20, 5, l2);
+        var r3 = new Zone.River(21, 5, l2);
 
-        assertEquals(getInitialMessages(), messageBoard.withScoredRiverSystem(riverSystem).messages());
+        var l3 = new Zone.Lake(38, 3, null);
+        var r4 = new Zone.River(30, 5, l3);
+
+        var riverSystem = new Area<Water>(Set.of(l1, r1, l2, r2, r3, l3, r4), List.of(RED, YELLOW), 0);
+
+        var mb = new MessageBoard(new BasicTextMaker(), List.of());
+        mb = mb.withScoredRaft(riverSystem);
+        var expectedMessage = new MessageBoard.Message("{RED,YELLOW}|3|3", 3, Set.of(RED, YELLOW), Set.of(1, 2, 3));
+        assertEquals(List.of(expectedMessage), mb.messages());
     }
 
     @Test
-    void withScoredPitTrap() {
-        // TODO : how do you get the tiles along one tile ?
+    void messageBoardWithWinnersWorks() {
+        var mb = new MessageBoard(new BasicTextMaker(), List.of());
+        mb = mb.withWinners(Set.of(PURPLE, YELLOW), 27);
+        var expectedMessage = new MessageBoard.Message("{YELLOW,PURPLE}|27", 0, Set.of(), Set.of());
+        assertEquals(1, mb.messages().size());
+        var actualMessage = mb.messages().getFirst();
+        assertEquals(expectedMessage.text(), actualMessage.text());
+        assertEquals(expectedMessage.points(), actualMessage.points());
+        // Ignore scorers, as the specification was somewhat ambiguous, but it should be empty
+        // assertEquals(expectedMessage.scorers(), actualMessage.scorers());
+        assertEquals(expectedMessage.tileIds(), actualMessage.tileIds());
     }
-
-    @Test
-    void withScoredRaftOneLakeNoOccupants() {
-        var messageBoard = new MessageBoard(TEXT_MAKER, getInitialMessages());
-
-        var expectedMessages = getInitialMessages();
-
-        Area<Zone.Water> riverSystemWithOneLake = ChaCuNUtils.createAreaWithNoOccupant(
-                3,
-                ChaCuNUtils.createLake(101, 5, Zone.SpecialPower.RAFT),
-                ChaCuNUtils.createRiverZone(103, 2),
-                ChaCuNUtils.createRiverZone(125, 2),
-                ChaCuNUtils.createRiverZone(136, 2)
-        );
-
-        assertEquals(expectedMessages, messageBoard.withScoredRaft(riverSystemWithOneLake).messages());
-    }
-
-    @Test
-    void withScoredRaftOneLakeOneOccupants() {
-        var players = Set.of(PlayerColor.RED);
-        var messageBoard = new MessageBoard(TEXT_MAKER, getInitialMessages());
-
-        var expectedMessages = addMessageAfterDefaultList(
-                createMessage(players, Points.forRaft(1), pair -> TEXT_MAKER.playersScoredRaft(pair.a(), pair.b(), 1), 10, 12, 13)
-        );
-
-        Area<Zone.Water> riverSystemWithOneLake = ChaCuNUtils.createAreaWithOccupant(
-                3,
-                PlayerColor.RED,
-                ChaCuNUtils.createLake(101, 5, Zone.SpecialPower.RAFT),
-                ChaCuNUtils.createRiverZone(103, 2),
-                ChaCuNUtils.createRiverZone(125, 2),
-                ChaCuNUtils.createRiverZone(136, 2)
-        );
-
-        assertEquals(expectedMessages, messageBoard.withScoredRaft(riverSystemWithOneLake).messages());
-    }
-
-    @Test
-    void withScoredRaftOneLakeManyOccupants() {
-        var players = Set.of(PlayerColor.RED);
-        var messageBoard = new MessageBoard(TEXT_MAKER, getInitialMessages());
-
-        var expectedMessages = addMessageAfterDefaultList(
-                createMessage(players, Points.forRaft(1), pair -> TEXT_MAKER.playersScoredRaft(pair.a(), pair.b(), 1), 10, 11, 12, 13)
-        );
-
-        Area<Zone.Water> riverSystemWithOneLake = ChaCuNUtils.createAreaWithOccupant(
-                3,
-                List.of(PlayerColor.RED, PlayerColor.RED, PlayerColor.BLUE),
-                ChaCuNUtils.createLake(101, 5, Zone.SpecialPower.RAFT),
-                ChaCuNUtils.createRiverZone(113, 2),
-                ChaCuNUtils.createRiverZone(125, 2),
-                ChaCuNUtils.createRiverZone(136, 2)
-        );
-
-        assertEquals(expectedMessages, messageBoard.withScoredRaft(riverSystemWithOneLake).messages());
-    }
-
-    @Test
-    void withScoredRaftManyLakeManyOccupants() {
-        var players = Set.of(PlayerColor.RED);
-        var messageBoard = new MessageBoard(TEXT_MAKER, getInitialMessages());
-
-        var expectedMessages = addMessageAfterDefaultList(
-                createMessage(players, Points.forRaft(3), pair -> TEXT_MAKER.playersScoredRaft(pair.a(), pair.b(), 3), 10, 11, 12, 13, 20)
-        );
-
-        Area<Zone.Water> riverSystemWithManyLakes = ChaCuNUtils.createAreaWithOccupant(
-                3,
-                List.of(PlayerColor.RED, PlayerColor.RED, PlayerColor.BLUE),
-                ChaCuNUtils.createLake(101, 5, Zone.SpecialPower.RAFT),
-                ChaCuNUtils.createLake(201, 5, Zone.SpecialPower.RAFT),
-                ChaCuNUtils.createLake(102, 5, Zone.SpecialPower.RAFT),
-                ChaCuNUtils.createRiverZone(113, 2),
-                ChaCuNUtils.createRiverZone(125, 2),
-                ChaCuNUtils.createRiverZone(136, 2)
-        );
-
-        assertEquals(expectedMessages, messageBoard.withScoredRaft(riverSystemWithManyLakes).messages());
-    }
-
-    @Test
-    void withScoredRaftManyLakeManyMajorityOccupants() {
-        var players = Set.of(PlayerColor.RED, PlayerColor.BLUE);
-        var messageBoard = new MessageBoard(TEXT_MAKER, getInitialMessages());
-
-        var expectedMessages = addMessageAfterDefaultList(
-                createMessage(players, Points.forRaft(3), pair -> TEXT_MAKER.playersScoredRaft(pair.a(), pair.b(), 3), 10, 11, 12, 13, 20)
-        );
-
-        Area<Zone.Water> riverSystemWithManyLakes = ChaCuNUtils.createAreaWithOccupant(
-                3,
-                List.of(PlayerColor.BLUE, PlayerColor.BLUE, PlayerColor.RED, PlayerColor.RED),
-                ChaCuNUtils.createLake(101, 5, Zone.SpecialPower.RAFT),
-                ChaCuNUtils.createLake(201, 5, Zone.SpecialPower.RAFT),
-                ChaCuNUtils.createLake(102, 5, Zone.SpecialPower.RAFT),
-                ChaCuNUtils.createRiverZone(113, 2),
-                ChaCuNUtils.createRiverZone(125, 2),
-                ChaCuNUtils.createRiverZone(136, 2)
-        );
-
-        assertEquals(expectedMessages, messageBoard.withScoredRaft(riverSystemWithManyLakes).messages());
-    }
-
-    @Test
-    void withScoredRaftLakeInRiver() {
-        var players = Set.of(PlayerColor.RED);
-        var messageBoard = new MessageBoard(TEXT_MAKER, getInitialMessages());
-
-        var expectedMessages = addMessageAfterDefaultList(
-                createMessage(players, Points.forRaft(2), pair -> TEXT_MAKER.playersScoredRaft(pair.a(), pair.b(), 2), 11, 12, 13, 30)
-        );
-
-        Zone.Lake lake1 = ChaCuNUtils.createLake(308, 0, null);
-        Zone.Lake lake2 = ChaCuNUtils.createLake(118, 1, Zone.SpecialPower.RAFT);
-        Area<Zone.Water> riverSystemWithManyLakes = ChaCuNUtils.createAreaWithOccupant(
-                3,
-                List.of(PlayerColor.RED, PlayerColor.RED, PlayerColor.BLUE),
-                ChaCuNUtils.createRiverZone(301, 0, lake1),
-                lake1,
-                ChaCuNUtils.createRiverZone(113, 2, lake2),
-                lake2,
-                ChaCuNUtils.createRiverZone(125, 2),
-                ChaCuNUtils.createRiverZone(136, 2)
-        );
-
-        assertEquals(expectedMessages, messageBoard.withScoredRaft(riverSystemWithManyLakes).messages());
-    }
-
-    @Test
-    void withScoredRaftExceptions() {
-        var messageBoard = new MessageBoard(TEXT_MAKER, getInitialMessages());
-
-        Area<Zone.Water> riverSystemWithNoLakes = ChaCuNUtils.createAreaWithOccupant(
-                3,
-                PlayerColor.RED,
-                ChaCuNUtils.createRiverZone(113, 2),
-                ChaCuNUtils.createRiverZone(125, 2),
-                ChaCuNUtils.createRiverZone(136, 2)
-        );
-
-        // TODO : what happens if we give to the message board a river system with no lakes ?
-        assertThrows(IllegalArgumentException.class, () -> messageBoard.withScoredRaft(riverSystemWithNoLakes));
-    }
-
-    @Test
-    void withWinners() {
-        var players = Set.of(PlayerColor.RED, PlayerColor.BLUE);
-        int points = 382;
-
-        var expectedMessages = addMessageAfterDefaultList(
-                createMessage(players, points, pair -> TEXT_MAKER.playersWon(pair.a(), pair.b()))
-        );
-
-        var messageBoard = new MessageBoard(TEXT_MAKER, getInitialMessages());
-        assertEquals(expectedMessages, messageBoard.withWinners(players, points).messages());
-    }
-
-
 }
 
-/**
- * Simple test class that implements TextMaker useful when testing {@link MessageBoard}
- */
+class BasicTextMaker implements TextMaker {
+    private static String scorers(Set<PlayerColor> scorers) {
+        return scorers.stream()
+                .sorted()
+                .map(Object::toString)
+                .collect(Collectors.joining(",", "{", "}"));
+    }
+
+    private static String animals(Map<Animal.Kind, Integer> animals) {
+        return Arrays.stream(Animal.Kind.values())
+                .map(k -> animals.getOrDefault(k, 0) + "×" + k)
+                .collect(Collectors.joining("/"));
+    }
+
+    @Override
+    public String playerName(PlayerColor playerColor) {
+        return playerColor.name();
+    }
+
+    @Override
+    public String points(int points) {
+        return String.valueOf(points);
+    }
+
+    @Override
+    public String playerClosedForestWithMenhir(PlayerColor player) {
+        return playerName(player);
+    }
+
+    @Override
+    public String playersScoredForest(Set<PlayerColor> scorers,
+                                      int points,
+                                      int mushroomGroupCount,
+                                      int tileCount) {
+        return String.join("|",
+                scorers(scorers),
+                points(points),
+                String.valueOf(mushroomGroupCount),
+                String.valueOf(tileCount));
+    }
+
+    @Override
+    public String playersScoredRiver(Set<PlayerColor> scorers,
+                                     int points,
+                                     int fishCount,
+                                     int tileCount) {
+        return String.join("|",
+                scorers(scorers),
+                points(points),
+                String.valueOf(fishCount),
+                String.valueOf(tileCount));
+    }
+
+    @Override
+    public String playerScoredHuntingTrap(PlayerColor scorer,
+                                          int points,
+                                          Map<Animal.Kind, Integer> animals) {
+        return String.join("|",
+                playerName(scorer),
+                String.valueOf(points),
+                animals(animals));
+    }
+
+    @Override
+    public String playerScoredLogboat(PlayerColor scorer, int points, int lakeCount) {
+        return String.join("|",
+                playerName(scorer),
+                points(points),
+                String.valueOf(lakeCount));
+    }
+
+    @Override
+    public String playersScoredMeadow(Set<PlayerColor> scorers,
+                                      int points,
+                                      Map<Animal.Kind, Integer> animals) {
+        return String.join(
+                "|",
+                scorers(scorers),
+                points(points),
+                animals(animals));
+    }
+
+    @Override
+    public String playersScoredRiverSystem(Set<PlayerColor> scorers, int points, int fishCount) {
+        return String.join(
+                "|",
+                scorers(scorers),
+                points(points),
+                String.valueOf(fishCount));
+    }
+
+    @Override
+    public String playersScoredPitTrap(Set<PlayerColor> scorers,
+                                       int points,
+                                       Map<Animal.Kind, Integer> animals) {
+        return String.join("|",
+                scorers(scorers),
+                String.valueOf(points),
+                animals(animals));
+    }
+
+    @Override
+    public String playersScoredRaft(Set<PlayerColor> scorers, int points, int lakeCount) {
+        return String.join("|",
+                scorers(scorers),
+                String.valueOf(points),
+                String.valueOf(lakeCount));
+    }
+
+    @Override
+    public String playersWon(Set<PlayerColor> winners, int points) {
+        return String.join("|",
+                scorers(winners),
+                points(points));
+    }
+
+    @Override
+    public String clickToOccupy() {
+        return "clickToOccupy";
+    }
+
+    @Override
+    public String clickToUnoccupy() {
+        return "clickToUnoccupy";
+    }
+}

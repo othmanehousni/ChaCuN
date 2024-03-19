@@ -1,6 +1,7 @@
 package ch.epfl.chacun;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 public class Board {
@@ -34,10 +35,28 @@ public class Board {
         return position.x() >= REACH && position.x() < REACH + 25 && position.y() >= REACH && position.y() < REACH + 25;
     }
 
+    private int tileIndexWithId(int id) {
+        for (int i = 0; i < tileIndex.length; i++) {
+            if (placedTiles[i] != null && placedTiles[i].tile().id() == id) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
     public PlacedTile TileAt(Pos position) {
-        for (int i = 0; i < placedTiles.length; i++) {
-            if (placedTiles[i] != null && placedTiles[i].pos().equals(position)) {
-                return placedTiles[i];
+        for (PlacedTile placedTile : placedTiles) {
+            if (placedTile != null && placedTile.pos().equals(position)) {
+                return placedTile;
+            }
+        }
+        return null;
+    }
+
+    public PlacedTile tileWithId(int id) {
+        for (PlacedTile placedTile : placedTiles) {
+            if (placedTile != null && placedTile.tile().id() == id) {
+                return placedTile;
             }
         }
         return null;
@@ -47,14 +66,13 @@ public class Board {
         Set<Pos> insertionPositions = new HashSet<>();
         for (int index : tileIndex) {
             for (Direction direction : Direction.ALL) {
-                if (isPositionInBoard(placedTiles[index].pos().neighbor(direction)) && TileAt(placedTiles[index].pos().neighbor(direction)) == null) {
+                if (isPositionInBoard(placedTiles[index].pos().neighbor(direction))
+                        &&
+                        TileAt(placedTiles[index].pos().neighbor(direction)) == null) {
                     insertionPositions.add(placedTiles[index].pos().neighbor(direction));
                 }
             }
-            //check si position est dans board : pos.x et reach : les deux en methodes privees
-            // trouver la tile qui correspond a la position
-            // si la tile est null alors on ajoute la position a insertionPositions
-        }
+            }
         return insertionPositions;
     }
 
@@ -70,97 +88,75 @@ public class Board {
         return zonePartitions.rivers().areaContaining(river);
     }
 
+   /* public Area<Zone.Water> riverSystemArea(Zone.Water water) {
+        return zonePartitions.riverSystems().areaContaining(water);
+    }
+
+    public Set<Area<Zone.Water>> riverSystemArea() {
+        return zonePartitions.riverSystems().areas();
+
+    public Set<Area<Zone.Meadow>> meadowArea() {
+        return zonePartitions.meadows().areas();
+    }*/
+
     public Set<Area<Zone.Forest>> forestsClosedByLastTile() {
         Set<Area<Zone.Forest>> closedForests = new HashSet<>();
-        PlacedTile lastTile = lastPlacedTile();
-        if (lastTile != null) {
-            for (Zone.Forest forest : lastTile.forestZones()) {
-                Area<Zone.Forest> forestArea = forestArea(forest);
-                if(forestArea.isClosed()) {
-                    closedForests.add(forestArea);
+        if (lastPlacedTile() != null) {
+            lastPlacedTile().forestZones().forEach(forest -> {
+                if (forestArea(forest).isClosed()) {
+                    closedForests.add(forestArea(forest));
                 }
-            }
+            });
         }
         return closedForests;
     }
 
     public Set<Area<Zone.River>> riversClosedByLastTile() {
         Set<Area<Zone.River>> closedRiver = new HashSet<>();
-        PlacedTile lastTile = lastPlacedTile();
-        if (lastTile != null) {
-            for (Zone.River river : lastTile.riverZones()) {
-                Area<Zone.River> riverArea = riverArea(river);
-                if (riverArea.isClosed()) {
-                    closedRiver.add(riverArea);
+        if (lastPlacedTile() != null) {
+            lastPlacedTile().riverZones().forEach(river -> {
+                if (riverArea(river).isClosed()) {
+                    closedRiver.add(riverArea(river));
                 }
-            }
+            });
         }
         return closedRiver;
     }
 
     public boolean canAddTile(PlacedTile tile) {
-        if (tile != null && insertionPositions().contains(tile.pos())) {
-            return true;
-        } else {
-            return false;
-        } // TODO CHECK LIEN AVEC INDEX LENGTH
+        return tile != null && insertionPositions().contains(tile.pos());
+
+        // TODO CHECK LIEN AVEC INDEX LENGTH ?
+
     }
 
     public boolean couldPlaceTile(Tile tile) {
         for (Pos position : insertionPositions()) {
             for (Rotation rotation : Rotation.ALL) {
                 PlacedTile placedTile = new PlacedTile(tile, null, rotation, position);
-                if (canAddTile(placedTile)) {
-                    return true;
+                return canAddTile(placedTile);
                 }
             }
-        }
         return false;
-    }
-
-    public Board withNewTile(PlacedTile tile) {
-        if (canAddTile(tile)) {
-            PlacedTile[] newPlacedTiles = placedTiles.clone();
-            int[] newTileIndex = tileIndex.clone();
-            ZonePartitions.Builder newZonePartitions = zonePartitions;
-            Set<Animal> newCancelledAnimals = new HashSet<>(cancelledAnimals);
-            newPlacedTiles[newTileIndex.length] = tile;
-            newTileIndex[newTileIndex.length] = newTileIndex.length;
-            newZonePartitions.addTile(tile.tile());
-            return new Board(newPlacedTiles, newTileIndex, newZonePartitions.build(), newCancelledAnimals);
-        } else {
-            throw new IllegalArgumentException();
         }
-    }
 
     public Board withOccupant(Occupant occupant) {
-        if (occupant != null) {
+        if (occupant != null && tileWithId(Zone.tileId(occupant.zoneId())) != null) {
             PlacedTile[] newPlacedTiles = placedTiles.clone();
-
-            //for(int i = 0; i < tileIndex.length; i++) {
-            // if(newPlacedTiles[i] == null) {
-            // newPlacedTiles[i] = newPlacedTiles[i].withOccupant(occupant);
-            //break;
-           // } TODO : wallahi je sais pas c une proposition
-
-            newPlacedTiles[tileIndex.length] = newPlacedTiles[tileIndex.length].withOccupant(occupant);
+            newPlacedTiles[tileIndexWithId(Zone.tileId(occupant.zoneId()))]
+                    = newPlacedTiles[tileIndexWithId(Zone.tileId(occupant.zoneId()))].withOccupant(occupant);
             return new Board(newPlacedTiles, tileIndex, zonePartitions, cancelledAnimals);
         } else {
             throw new IllegalArgumentException();
-        }
+                }
+
     }
 
-    public Board withoutOccupant(Occupant occupant) {
-        if (occupant != null) {
-            PlacedTile[] newPlacedTiles = placedTiles.clone();
-            for(int i = 0; i < tileIndex.length; i++) {
-                if (newPlacedTiles[i].occupant().equals(occupant)) {
-                    newPlacedTiles[i] = null;
-                    break;
-                }
-            }
-           // TODO : jsp c une idee qui peut marcher
 
+    public Board withoutOccupant(Occupant occupant) {
+        if (occupant != null && tileWithId(Zone.tileId(occupant.zoneId())) != null) {
+            PlacedTile[] newPlacedTiles = placedTiles.clone();
+            newPlacedTiles[tileIndexWithId(Zone.tileId(occupant.zoneId()))].withNoOccupant();
             return new Board(newPlacedTiles, tileIndex, zonePartitions, cancelledAnimals);
         } else {
             throw new IllegalArgumentException();
@@ -168,21 +164,21 @@ public class Board {
     }
 
     public Board withoutGatherersOrFishersIn(Set<Area<Zone.Forest>> forests, Set<Area<Zone.River>> rivers) {
-        for (Area<Zone.Forest> forest : forests) {
-            for (Area<Zone.River> river : rivers) {
-                ZonePartitions.Builder newZonePartitions = new ZonePartitions(forest., river, zonePartitions.meadows(), zonePartitions.riverSystems());
+        Set<Area<Zone.Forest>> newForests = new HashSet<>();
+        Set<Area<Zone.River>> newRivers = new HashSet<>();
 
-            }
-            newZonePartitions.
+        forests.forEach(forest -> newForests.add(forest.withoutOccupants()));
+        rivers.forEach(river -> newRivers.add(river.withoutOccupants()));
 
-            return new Board(placedTiles, tileIndex, zonePartitions, );
+        ZonePartitions newZonePartitions = new ZonePartitions(new ZonePartition<>(newForests), zonePartitions.meadows(), new ZonePartition<>(newRivers), zonePartitions.riverSystems());
+
+        return new Board(placedTiles, tileIndex, newZonePartitions, cancelledAnimals );
 
         }
-    }
 
     public Board withMoreCancelledAnimals(Set<Animal> newlyCancelledAnimals) {
-        Set<Animal> newCancelledAnimals = new HashSet<>(cancelledAnimals);
-        newCancelledAnimals.addAll(newlyCancelledAnimals);
+        Set <Animal> newCancelledAnimals = new HashSet<>(cancelledAnimals);
+        newlyCancelledAnimals.addAll(newCancelledAnimals);
         return new Board(placedTiles, tileIndex, zonePartitions, newCancelledAnimals);
     }
 
