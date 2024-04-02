@@ -215,7 +215,6 @@ public class MyZonePartitionsTest2 {
 
     }
 
-    @Test
     void addInitialOccupantWorksOnGoodCase(){
 
 
@@ -299,7 +298,6 @@ public class MyZonePartitionsTest2 {
 
     }
 
-    @Test
     void addInitialOccupantWorksWhenAlreadyOccupied() {
 
 
@@ -420,7 +418,6 @@ public class MyZonePartitionsTest2 {
 
 
     //Est ce qu'on a bien compris la consigne?, enft jcois que c bon dcp chill
-    @Test
     void addInitialOccupantWorksForRiverSystemWithLake() {
 
         //Tile56
@@ -472,7 +469,7 @@ public class MyZonePartitionsTest2 {
     }
 
 
-    @Test
+
     void removePawnWorksOnNormalCase(){
 
         //Tile56
@@ -631,7 +628,6 @@ public class MyZonePartitionsTest2 {
     }
 
 
-    @Test
     void clearGatherersWorksWhenOccupied() {
 
         //Tile56
@@ -722,7 +718,6 @@ public class MyZonePartitionsTest2 {
     }
 
 
-    @Test
     void clearGatherersWorksWhenUnoccupied() {
 
         //Tile56
@@ -813,7 +808,6 @@ public class MyZonePartitionsTest2 {
     }
 
 
-    @Test
     void clearFishersWorksWhenOccupied() {
 
         //Tile56

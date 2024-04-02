@@ -74,7 +74,7 @@ public sealed interface Zone {
         HUNTING_TRAP,
         PIT_TRAP,
         WILD_FIRE,
-        RAFT;
+        RAFT
     }
 
     /**

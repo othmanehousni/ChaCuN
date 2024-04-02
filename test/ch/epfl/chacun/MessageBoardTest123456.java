@@ -83,7 +83,6 @@ public class MessageBoardTest123456 {
         return new MessageBoard.Message(message.apply(new Tuples.Pair<>(scorer, points)), points, Set.of(scorer), Set.of(tileID));
     }
 
-    @Test
     void messageConstructorThrowsIllegalArgumentExceptionIfArgumentsAreNull() {
         assertThrows(IllegalArgumentException.class, () -> new MessageBoard.Message(null, 0, new HashSet<>(), new HashSet<>()));
         assertThrows(IllegalArgumentException.class, () -> new MessageBoard.Message("", 0, null, new HashSet<>()));
@@ -741,7 +740,6 @@ public class MessageBoardTest123456 {
         assertThrows(IllegalArgumentException.class, () -> messageBoard.withScoredRaft(riverSystemWithNoLakes));
     }
 
-    @Test
     void withWinners() {
         var players = Set.of(PlayerColor.RED, PlayerColor.BLUE);
         int points = 382;

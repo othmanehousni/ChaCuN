@@ -9,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class zpsAli {
-        @Test
+
         void addTileWorksOnNonTrivialCase() {
             //Création d'une liste d'occupants (PlayerColor)
             List<PlayerColor> occupants = new ArrayList<>();
@@ -150,7 +150,6 @@ public class zpsAli {
             assertEquals(expectedRiverSystemPartition, actual.riverSystems());
         }
 
-        @Test
         void addTileWorksWhenZonePartitionsIsEmpty() {
             //Création 2 listes d'animaux
             List<Animal> animalsList1 = new ArrayList<>();

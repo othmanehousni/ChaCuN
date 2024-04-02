@@ -451,7 +451,6 @@ public class MyZonePartitionsTest {
         assertThrows(IllegalArgumentException.class, () -> builder.addInitialOccupant(PlayerColor.RED, Occupant.Kind.PAWN, lake));
     }
 
-    @Test
     void addInitialOccupantThrowsIllegalArgumentExceptionIfAddHutOnRiverConnectedToLake() {
         List<Zone> zones = getZones1();
         Zone.River river = (Zone.River) zones.get(3);

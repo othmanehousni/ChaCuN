@@ -4,6 +4,15 @@ import java.util.*;
 
 public record MessageBoard (TextMaker textMaker, List<Message> messages) {
 
+    /**
+     * Represents a message displayed on the message board.
+     *
+     * @param text The text of the message.
+     * @param points The points associated with the message, which can be 0.
+     * @param scorers The set of players who scored the points, which can be empty.
+     * @param tileIds The identifiers of the tiles related to the message, or an empty set.
+     */
+
     public record Message (String text, int points, Set<PlayerColor> scorers, Set<Integer> tileIds) {
 
         /**
@@ -372,13 +381,5 @@ public record MessageBoard (TextMaker textMaker, List<Message> messages) {
 
     }
 
-    /**
-     * Represents a message displayed on the message board.
-     *
-     * @param text The text of the message.
-     * @param points The points associated with the message, which can be 0.
-     * @param scorers The set of players who scored the points, which can be empty.
-     * @param tileIds The identifiers of the tiles related to the message, or an empty set.
-     */
 
 }
