@@ -41,7 +41,7 @@ public record Occupant(Kind kind, int zoneId) {
      */
     public enum Kind {
         PAWN,
-        HUT;
+        HUT
     }
 
 

@@ -96,7 +96,7 @@ public sealed interface Zone {
             PLAIN,
 
             WITH_MENHIR,
-            WITH_MUSHROOMS;
+            WITH_MUSHROOMS
         }
     }
 
