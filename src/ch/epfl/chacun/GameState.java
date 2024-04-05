@@ -243,11 +243,7 @@ public record GameState(List<PlayerColor> players, TileDecks tileDecks, Tile til
 
 
     public PlayerColor currentPlayer() {
-        if (nextAction == Action.START_GAME || nextAction == Action.END_GAME) {
-            return null;
-        } else {
-            return players.getFirst();
-        }
+        return nextAction == Action.START_GAME || nextAction == Action.END_GAME ? null : players.getFirst();
     }
 
     /**
@@ -273,7 +269,7 @@ public record GameState(List<PlayerColor> players, TileDecks tileDecks, Tile til
 
 
     public Set<Occupant> lastTilePotentialOccupants() {
-        Preconditions.checkArgument(board.lastPlacedTile() != null);
+        Preconditions.checkArgument(board() != Board.EMPTY);
         Set<Occupant> potentialOccupants = board.lastPlacedTile().potentialOccupants();
         potentialOccupants.removeIf(potentialOccupant ->
                 freeOccupantsCount(currentPlayer(), potentialOccupant.kind()) == 0

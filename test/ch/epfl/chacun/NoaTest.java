@@ -230,7 +230,7 @@ class NoaTest {
         //Finish the turn (see if it sends messages and removes occupants from rivers)
 
         normalState = normalState.withNewOccupant(new Occupant(Occupant.Kind.PAWN, 1));
-        System.out.println(normalState.board().occupants()); // its normal because we clear fishers after
+       // System.out.println(normalState.board().occupants()); // its normal because we clear fishers after
 
 
         assertEquals(new MessageBoard(textClass, List.of(new MessageBoard.Message(textClass.playersScoredRiver(Set.of(PlayerColor.YELLOW), 5, 3, 2), 5, Set.of(PlayerColor.YELLOW), Set.of(0, 56)))), normalState.messageBoard());
@@ -243,6 +243,7 @@ class NoaTest {
                 new GameState(List.of(PlayerColor.YELLOW, PlayerColor.BLUE), newTileDecks, Tiles.TILES.get(0), Board.EMPTY, GameState.Action.OCCUPY_TILE, new MessageBoard(textClass, List.of())).withPlacedTile(null));
 
     }
+
 
 
     void withPlacedTileOccupationImpossible() {
