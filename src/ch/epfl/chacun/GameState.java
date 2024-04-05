@@ -208,7 +208,7 @@ public record GameState(List<PlayerColor> players, TileDecks tileDecks, Tile til
                 .values()
                 .stream()
                 .max(Integer::compareTo)
-                .orElseGet(() -> 0);
+                .orElse(0);
 
         Set<PlayerColor> winners = points
                 .entrySet()
