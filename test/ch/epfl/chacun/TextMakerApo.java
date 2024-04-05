@@ -1,4 +1,4 @@
-package tests_etape4.ourTests;
+package ch.epfl.chacun;
 
 import ch.epfl.chacun.Animal;
 import ch.epfl.chacun.PlayerColor;

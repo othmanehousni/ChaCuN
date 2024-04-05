@@ -368,7 +368,7 @@ public record MessageBoard (TextMaker textMaker, List<Message> messages) {
         Message scoredMessage = new Message (
                 scoredText,
                 0,
-                winners,
+                Set.of(),
                 Set.of());
 
 

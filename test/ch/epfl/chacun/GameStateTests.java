@@ -2,7 +2,6 @@ package ch.epfl.chacun;
 
 import ch.epfl.chacun.*;
 import org.junit.jupiter.api.Test;
-import tests_etape4.ourTests.TextMakerApo;
 import java.util.*;
 import ch.epfl.chacun.Tiles;
 import static org.junit.jupiter.api.Assertions.*;
