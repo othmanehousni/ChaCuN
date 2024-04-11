@@ -5,7 +5,6 @@ import java.util.List;
 /**
  * @author Othmane HOUSNI (375072)
  * @author Hamza ZOUBAYRI (361522)
- * <p>
  * Enumerates the possible colors that a player can choose in the game.
  */
 public enum PlayerColor {

@@ -6,7 +6,6 @@ import java.util.function.Predicate;
 /**
  * @author Othmane HOUSNI (375072)
  * @author Hamza Zoubayri (361522)
- * <p>
  * Represents the decks of tiles of three different kinds: start, normal, and menhir.
  * It allows treating all tiles uniformly and simplifies the handling of tiles throughout the game.
  */

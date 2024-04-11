@@ -4,7 +4,6 @@ package ch.epfl.chacun;
 /**
  * @author Othmane HOUSNI (375072)
  * @author Hamza Zoubayri (361522)
- * <p>
  * Provides static utility methods to check method or constructor arguments.
  * This class serves as a facility to validate conditions (preconditions) for methods and constructors.
  * It is designed to support the enforcement of argument correctness across methods and constructors.

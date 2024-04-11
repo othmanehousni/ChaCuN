@@ -3,7 +3,6 @@ package ch.epfl.chacun;
 /**
  * @author Othmane HOUSNI (375072)
  * @author Hamza Zoubayri (361522)
- * <p>
  * Represents a position in a two-dimensional space with x and y coordinates.
  */
 public record Pos(int x, int y) {

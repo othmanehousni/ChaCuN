@@ -7,7 +7,7 @@ import ch.epfl.chacun.Tiles;
 import static org.junit.jupiter.api.Assertions.*;
 
 
-public class GameStateTests {
+public class MyGameStateTests1 {
     //Simulation d'une partie de ChaCuN :
 
     static Board boardWithStartTile = Board.EMPTY.withNewTile(new PlacedTile(initialGameState().tileDecks().topTile(Tile.Kind.START),

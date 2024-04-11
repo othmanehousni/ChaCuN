@@ -55,7 +55,7 @@ public record ZonePartition <Z extends Zone> (Set <Area<Z>> areas) {
      */
     public final static class Builder<Z extends Zone> {
 
-        private Set<Area<Z>> areas;
+        private final Set<Area<Z>> areas;
 
         /**
          * Constructs a {@code Builder} initialized with areas from an existing {@code ZonePartition}.
@@ -66,7 +66,7 @@ public record ZonePartition <Z extends Zone> (Set <Area<Z>> areas) {
             this.areas = new HashSet<>(zonePartition.areas());
         }
 
-        private Area<Z> areaContaining(Z zone, Set<Area<Z>> areas) {//est ce que ca doit etre static?
+        private Area<Z> areaContaining(Z zone, Set<Area<Z>> areas) {
             for (Area<Z> area : areas) {
                 if (area.zones().contains(zone)) {
                     return area;

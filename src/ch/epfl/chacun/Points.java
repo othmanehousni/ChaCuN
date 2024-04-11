@@ -1,11 +1,8 @@
 package ch.epfl.chacun;
 
 /**
- * *
- *
  * @author Othmane HOUSNI (375072)
  * @author Hamza Zoubayri (361522)
- * <p>
  * Utility class for calculating points based on various game elements such as forests, rivers, meadows, and more.
  * This class cannot be instantiated.
  */

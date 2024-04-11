@@ -8,7 +8,6 @@ import java.util.Set;
 /**
  * @author Othmane HOUSNI (375072)
  * @author Hamza ZOUBAYRI (361522)
- * <p>
  * Represents a tile that has been placed on the board.
  * It encapsulates information about the tile, its placement, rotation, and any occupant it might have.
  */

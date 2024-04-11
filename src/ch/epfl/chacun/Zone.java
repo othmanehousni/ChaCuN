@@ -5,7 +5,6 @@ import java.util.List;
 /**
  * @author Othmane HOUSNI (375072)
  * @author Hamza Zoubayri (361522)
- * <p>
  * Represents a zone in the game world, with various implementations for different types of zones.
  */
 public sealed interface Zone {
@@ -16,7 +15,7 @@ public sealed interface Zone {
      * @param zoneId the unique identifier of the zone.
      * @return the tile ID derived from the zone's identifier.
      */
-    public static int tileId(int zoneId) {
+    static int tileId(int zoneId) {
         return zoneId / 10;
     }
 
@@ -26,7 +25,7 @@ public sealed interface Zone {
      * @param zoneId the unique identifier of the zone.
      * @return the local ID within a tile.
      */
-    public static int localId(int zoneId) {
+    static int localId(int zoneId) {
         return zoneId % 10;
     }
 
@@ -35,7 +34,7 @@ public sealed interface Zone {
      *
      * @return the unique identifier of the zone.
      */
-    public abstract int id();
+     int id();
 
     /**
      * Default method to calculate the tile ID of this zone.
@@ -81,7 +80,8 @@ public sealed interface Zone {
      * Represents a water zone, either a lake or a river, containing fish.
      */
     sealed interface Water extends Zone {
-        public abstract int fishCount();
+
+         int fishCount();
     }
 
     /**

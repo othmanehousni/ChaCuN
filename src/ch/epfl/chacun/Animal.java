@@ -4,8 +4,6 @@ package ch.epfl.chacun;
 /**
  * @author Othmane HOUSNI (375072)
  * @author Hamza ZOUBAYRI (361522)
- * <p>
- * <p>
  * Represents an animal with a unique identifier and a specific kind.
  * This record encapsulates the properties of an animal in the game, including its identification number and type.
  */

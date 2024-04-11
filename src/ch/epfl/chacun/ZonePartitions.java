@@ -1,6 +1,8 @@
 package ch.epfl.chacun;
 
 /**
+ * @author Othmane HOUSNI (375072)
+ * @author Hamza ZOUBAYRI (361522)
  * Represents the group of four zone partitions in the game, encompassing forests, meadows, rivers, and water systems.
  * This record holds the partitions for different types of zones, allowing for operations across the game's landscape.
  */
@@ -19,10 +21,10 @@ public record ZonePartitions(ZonePartition<Zone.Forest> forests, ZonePartition<Z
      */
 
     final public static class Builder {
-        private ZonePartition.Builder<Zone.Forest> forestBuilder;
-        private ZonePartition.Builder<Zone.Meadow> meadowBuilder;
-        private ZonePartition.Builder<Zone.River> riverBuilder;
-        private ZonePartition.Builder<Zone.Water> riverSystemsBuilder;
+        private final ZonePartition.Builder<Zone.Forest> forestBuilder;
+        private final ZonePartition.Builder<Zone.Meadow> meadowBuilder;
+        private final ZonePartition.Builder<Zone.River> riverBuilder;
+        private final ZonePartition.Builder<Zone.Water> riverSystemsBuilder;
 
         /**
          * Constructs a new builder initialized with the partitions from an existing {@code ZonePartitions} instance.

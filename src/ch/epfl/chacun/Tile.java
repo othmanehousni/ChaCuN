@@ -8,7 +8,6 @@ import java.util.Set;
 /**
  * @author Othmane HOUSNI (375072)
  * @author Hamza Zoubayri (361522)
- * <p>
  * Represents a tile which has not yet been placed in the game.
  * Tiles are the fundamental building blocks of the game board.
  */

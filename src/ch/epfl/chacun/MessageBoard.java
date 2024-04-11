@@ -2,6 +2,12 @@ package ch.epfl.chacun;
 
 import java.util.*;
 
+/**
+ *
+ * @author Othmane HOUSNI (375072)
+ * @author Hamza ZOUBAYRI (361522)
+ */
+
 public record MessageBoard (TextMaker textMaker, List<Message> messages) {
 
     /**
@@ -23,8 +29,6 @@ public record MessageBoard (TextMaker textMaker, List<Message> messages) {
         public Message {
             Preconditions.checkArgument(points >= 0);
             Objects.requireNonNull(text);
-            //Preconditions.checkArgument(scorers != null);
-            //Preconditions.checkArgument(tileIds != null);
             scorers = Set.copyOf(scorers);
             tileIds = Set.copyOf(tileIds);
         }
@@ -170,7 +174,7 @@ public record MessageBoard (TextMaker textMaker, List<Message> messages) {
      * @return A new {@code MessageBoard} instance including the new message if points were scored; otherwise, the original instance.
      */
     public MessageBoard withScoredHuntingTrap(PlayerColor scorer, Area<Zone.Meadow> adjacentMeadow) {
-        Set<Animal> animalSet = Area.animals(adjacentMeadow, Set.of()); //l'empty set a ete donne par un gars sur ed
+        Set<Animal> animalSet = Area.animals(adjacentMeadow, Set.of());
         Map<Animal.Kind, Integer> animalMap = getAnimalMap(animalSet);
         int points = getAnimalPoint(animalMap);
         if (points <= 0) {

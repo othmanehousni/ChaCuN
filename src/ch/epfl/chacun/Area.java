@@ -28,7 +28,7 @@ public record Area <Z extends Zone> (Set<Z> zones , List<PlayerColor> occupants,
     public Area {
         Preconditions.checkArgument(openConnections >= 0);
         zones = Set.copyOf(zones);
-        List <PlayerColor> sorted = occupants.stream().sorted().toList();// sort par rappport au kind
+        List <PlayerColor> sorted = occupants.stream().sorted().toList();
         occupants = List.copyOf(sorted);
     }
 
@@ -95,7 +95,7 @@ public record Area <Z extends Zone> (Set<Z> zones , List<PlayerColor> occupants,
         Set<Zone.Lake> lakeFishZone = new HashSet<>();
         for (Zone.River riverZone : river.zones) {
             fishCount += riverZone.fishCount();
-            if(riverZone.hasLake() && lakeFishZone.add(riverZone.lake())) { //verifier la premirere condition
+            if(riverZone.hasLake() && lakeFishZone.add(riverZone.lake())) {
                 fishCount += riverZone.lake().fishCount();
             }
         }
@@ -158,11 +158,13 @@ public record Area <Z extends Zone> (Set<Z> zones , List<PlayerColor> occupants,
         Set<PlayerColor> majorityOccupants = new HashSet<>();
         for (PlayerColor occupantColor : occupants) {
             occupantCount[occupantColor.ordinal()]++; }
-        int maxOccupantColor = Arrays.stream((occupantCount)).max().getAsInt();
-        if (maxOccupantColor > 0) {
-            for (int i = 0; i < occupantCount.length; i++) {
-                if (occupantCount[i] == maxOccupantColor) {
-                    majorityOccupants.add(PlayerColor.values()[i]);
+        if(Arrays.stream((occupantCount)).max().isPresent()) {
+            int maxOccupantColor = Arrays.stream((occupantCount)).max().getAsInt();
+            if (maxOccupantColor > 0) {
+                for (int i = 0; i < occupantCount.length; i++) {
+                    if (occupantCount[i] == maxOccupantColor) {
+                        majorityOccupants.add(PlayerColor.values()[i]);
+                    }
                 }
             }
         }

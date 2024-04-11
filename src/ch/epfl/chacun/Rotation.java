@@ -5,7 +5,6 @@ import java.util.List;
 /**
  * @author Othmane HOUSNI (375072)
  * @author Hamza Zoubayri (361522)
- * <p>
  * Represents and enumerates the possible rotations that can be applied to an object in a two-dimensional space.
  */
 public enum Rotation {

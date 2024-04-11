@@ -5,7 +5,6 @@ import java.util.Objects;
 /**
  * @author Othmane HOUSNI (375072)
  * @author Hamza ZOUBAYRI (361522)
- * <p>
  * Represents an occupant within a specific zone, characterized by its kind and the zone's ID.
  */
 public record Occupant(Kind kind, int zoneId) {

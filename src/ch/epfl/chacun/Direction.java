@@ -5,7 +5,6 @@ import java.util.List;
 /**
  * @author Othmane HOUSNI (375072)
  * @author Hamza ZOUBAYRI (361522)
- * <p>
  * Represents the cardinal directions in which an entity can move or face.
  * Enumerates all possible directions.
  */

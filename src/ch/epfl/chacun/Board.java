@@ -3,19 +3,20 @@ package ch.epfl.chacun;
 import java.util.*;
 
 /**
+ * @author Othmane HOUSNI (375072)
+ * @author Hamza ZOUBAYRI (361522)
  * Represents the game board for ChaCuN, a square board of 25x25 tiles with the central tile initially placed.
  * This class manages the placement of tiles, tracking of occupants, and game state related to the board layout.
  */
 
 
-// TODO : RAJOUTER LES NOMS
 public final class Board {
     private final PlacedTile[] placedTiles; // Array holding the tiles placed on the board, mostly null except for placed tiles.
     private final int[] tileIndex; // Array holding indexes of placed tiles in the order they were placed.
     private final ZonePartitions zonePartitions; // Partitions of the board into different zone types.
     private final Set<Animal> cancelledAnimals; // Set of animals that have been cancelled (removed from play).
     public static final int REACH = 12; // The reach of the board, distance from the center to the edge.
-    private static final int BOARDSIZE = 2 * REACH + 1; // Calculated board size, ensuring it covers the 25x25 tile area.
+    private static final int BOARD_SIZE = 2 * REACH + 1; // Calculated board size, ensuring it covers the 25x25 tile area.
 
     public static final Board EMPTY = new Board(new PlacedTile[625], new int[0], ZonePartitions.EMPTY, new HashSet<>()); // Represents an empty board state.
 
@@ -54,7 +55,7 @@ public final class Board {
      * @return The index of the position in the array, or -1 if the position is not on the board.
      */
     private int posToIndex(Pos pos) {
-        return isPositionInBoard(pos) ? (pos.x() + REACH) + (pos.y() + REACH) * BOARDSIZE : -1;
+        return isPositionInBoard(pos) ? (pos.x() + REACH) + (pos.y() + REACH) * BOARD_SIZE : -1;
     }
 
     /**
@@ -425,7 +426,7 @@ public final class Board {
             newZonePartitions.clearFishers(river);
             river.zones().forEach(zone -> {
                 PlacedTile tile = tileWithId(Zone.tileId(zone.id()));
-                if (tile.occupant() != null && tile.occupant().zoneId() == zone.id()) {
+                if (tile.occupant() != null && tile.occupant().zoneId() == zone.id() && tile.occupant().kind() == Occupant.Kind.PAWN) {
                     newPlacedTiles[posToIndex(tile.pos())] = tileWithId(zone.tileId()).withNoOccupant();
                 }
             });

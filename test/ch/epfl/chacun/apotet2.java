@@ -1,4 +1,4 @@
-package etape5;
+package ch.epfl.chacun;
 
 import ch.epfl.chacun.*;
 import org.junit.jupiter.api.Test;
