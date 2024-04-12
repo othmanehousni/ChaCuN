@@ -69,6 +69,15 @@ public record GameState(List<PlayerColor> players, TileDecks tileDecks, Tile til
 
     }
 
+    /**
+     * Calculates and returns the number of tigers in a given set of animals.
+     * This method filters through the provided set of animals and counts how many
+     * of them are of the type TIGER.
+     *
+     * @param allAnimals A {@link Set} of {@link Animal} from which to count the tigers.
+     * @return The count of tigers in the provided set of animals.
+     */
+
     private int tigerCount(Set<Animal> allAnimals) {
         return (int) allAnimals.stream().filter(animal -> animal.kind() == Animal.Kind.TIGER).count();
     }
