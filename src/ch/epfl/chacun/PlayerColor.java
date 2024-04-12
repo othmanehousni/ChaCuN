@@ -3,10 +3,11 @@ package ch.epfl.chacun;
 import java.util.List;
 
 /**
+ * Enumerates the possible colors that a player can choose in the game.
  * @author Othmane HOUSNI (375072)
  * @author Hamza ZOUBAYRI (361522)
- * Enumerates the possible colors that a player can choose in the game.
  */
+
 public enum PlayerColor {
 
     RED,

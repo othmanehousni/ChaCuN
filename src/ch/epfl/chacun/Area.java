@@ -16,6 +16,7 @@ import java.util.*;
  * @author Othmane HOUSNI (375072)
  * @author Hamza ZOUBAYRI (361522)
  */
+
 public record Area <Z extends Zone> (Set<Z> zones , List<PlayerColor> occupants, int openConnections) {
 
     /**
@@ -35,14 +36,13 @@ public record Area <Z extends Zone> (Set<Z> zones , List<PlayerColor> occupants,
 
     /**
      * Checks if the given forest area contains at least one menhir.
-     *
      * @param forest The forest area to check.
      * @return true if the forest contains at least one menhir, otherwise false.
      */
 
     public static boolean hasMenhir(Area<Zone.Forest> forest) {
         for (Zone.Forest forestZones : forest.zones) {
-            if (forestZones.kind().equals(Zone.Forest.Kind.WITH_MENHIR)) {
+            if (forestZones.kind() == Zone.Forest.Kind.WITH_MENHIR) {
                 return true;
             }
         }
@@ -59,7 +59,7 @@ public record Area <Z extends Zone> (Set<Z> zones , List<PlayerColor> occupants,
     public static int mushroomGroupCount(Area<Zone.Forest> forest) {
         int mushroomCount = 0;
         for (Zone.Forest forestZones : forest.zones) {
-            if (forestZones.kind().equals(Zone.Forest.Kind.WITH_MUSHROOMS)) {
+            if (forestZones.kind() == Zone.Forest.Kind.WITH_MUSHROOMS) {
                 mushroomCount += 1;
             }
         }
@@ -73,6 +73,7 @@ public record Area <Z extends Zone> (Set<Z> zones , List<PlayerColor> occupants,
      * @param cancelledAnimals The set of animals to exclude from the result.
      * @return A set of animals present in the meadow, excluding cancelled ones.
      */
+
     public static Set<Animal> animals(Area<Zone.Meadow> meadow, Set<Animal> cancelledAnimals) {
         Set<Animal> remainingAnimals = new HashSet<>();
         for (Zone.Meadow meadowZones : meadow.zones) {
@@ -154,6 +155,7 @@ public record Area <Z extends Zone> (Set<Z> zones , List<PlayerColor> occupants,
      * @return A set of {@link PlayerColor} representing the colors of the majority occupants.
      */
     public Set<PlayerColor> majorityOccupants() {
+
         int[] occupantCount = new int[PlayerColor.values().length];
         Set<PlayerColor> majorityOccupants = new HashSet<>();
         for (PlayerColor occupantColor : occupants) {
@@ -172,7 +174,7 @@ public record Area <Z extends Zone> (Set<Z> zones , List<PlayerColor> occupants,
     }
 
     /**
-     * Connects the current area with another area, merging their zones and occupants.
+     * Connects the current area with another area, merging their zones, occupants and open connections.
      * The open connections of the resulting area are adjusted accordingly.
      *
      * @param that The area to connect with.
@@ -216,7 +218,6 @@ public record Area <Z extends Zone> (Set<Z> zones , List<PlayerColor> occupants,
     /**
      * Creates a new area identical to the current one but with one occupant of the specified color removed.
      * If no such occupant exists, an {@code IllegalArgumentException} is thrown.
-     *
      * @param occupant The color of the occupant to remove.
      * @return A new {@code Area} instance with the specified occupant removed.
      * @throws IllegalArgumentException if the area doesn't contain an occupant of the specified color.
@@ -231,7 +232,6 @@ public record Area <Z extends Zone> (Set<Z> zones , List<PlayerColor> occupants,
 
     /**
      * Creates a new area identical to the current one but without any occupants.
-     *
      * @return A new {@code Area} instance devoid of any occupants.
      */
 
@@ -241,7 +241,6 @@ public record Area <Z extends Zone> (Set<Z> zones , List<PlayerColor> occupants,
 
     /**
      * Retrieves the set of tile IDs that contain this area.
-     *
      * @return A set of integers representing the IDs of tiles containing this area.
      */
 
@@ -255,14 +254,13 @@ public record Area <Z extends Zone> (Set<Z> zones , List<PlayerColor> occupants,
 
     /**
      * Finds and returns the zone within the area that possesses a specific special power, if any.
-     *
      * @param specialPower The special power to search for within the area's zones.
      * @return The zone that has the specified special power, or {@code null} if no such zone exists.
      */
 
     public Zone zoneWithSpecialPower(Zone.SpecialPower specialPower) {
         for (Zone specialZone : zones) {
-            if (specialPower.equals(specialZone.specialPower())) {
+            if (specialPower == specialZone.specialPower()) {
                 return specialZone;
             }
         }

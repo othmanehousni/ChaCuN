@@ -14,20 +14,14 @@ public final class TextMakerFr implements TextMaker {
         this.playerNames = playerNames;
     }
 
-    public BiFunction<Integer, Integer, Integer> blabla = Integer::compare;
-
-
-
-    public double dada = 5d;
-    public String sortedNames(Map<PlayerColor, String> playerNames) { //TODO : remettre private
+    private String sortedNames(Map<PlayerColor, String> playerNames) { //TODO : remettre private
         List<Map.Entry<PlayerColor,String >> sortedPlayers = playerNames.entrySet().stream().sorted((Comparator.comparing(player -> player.getKey().ordinal()))).toList();
         String last = sortedPlayers.getLast().getValue();
         sortedPlayers = sortedPlayers.subList(0, sortedPlayers.size()-1);
+
         return STR."\{sortedPlayers.stream()
                 .map(Map.Entry::getValue)
                 .collect(Collectors.joining(", "))} et \{last}";
-
-
     }
 
     private int countAnimalsByKind(Map<Animal.Kind, Integer> animals, Animal.Kind kind) {

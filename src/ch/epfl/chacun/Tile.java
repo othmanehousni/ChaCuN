@@ -6,17 +6,23 @@ import java.util.Set;
 
 
 /**
- * @author Othmane HOUSNI (375072)
- * @author Hamza Zoubayri (361522)
  * Represents a tile which has not yet been placed in the game.
  * Tiles are the fundamental building blocks of the game board.
+ * @author Othmane HOUSNI (375072)
+ * @author Hamza Zoubayri (361522)
+ *
+ * @param id The unique identifier of the tile.
+ * @param kind The kind of the tile.
+ * @param n The northern side of the tile.
+ * @param e The eastern side of the tile.
+ * @param s The southern side of the tile.
+ * @param w The western side of the tile.
  */
 
 public record Tile(int id, Kind kind, TileSide n, TileSide e, TileSide s, TileSide w) {
 
     /**
      * Returns a list of the four sides of the tile, in the order: North, East, South, West.
-     *
      * @return A list containing the tile's sides.
      */
     public List<TileSide> sides() {
@@ -26,7 +32,6 @@ public record Tile(int id, Kind kind, TileSide n, TileSide e, TileSide s, TileSi
     /**
      * Returns the set of edge zones of the tile, i.e., those that touch at least one edge.
      * This excludes lake zones which are considered internal.
-     *
      * @return A set of zones that are on the edge of the tile.
      */
     public Set<Zone> sideZones() {
@@ -39,7 +44,6 @@ public record Tile(int id, Kind kind, TileSide n, TileSide e, TileSide s, TileSi
 
     /**
      * Returns the set of all zones on the tile, including lakes.
-     *
      * @return A set containing all zones of the tile.
      */
 
@@ -48,9 +52,7 @@ public record Tile(int id, Kind kind, TileSide n, TileSide e, TileSide s, TileSi
         for (Zone zones : sideZones()) {
             allZones.add(zones);
             if (zones instanceof Zone.River river && river.hasLake()) {
-                {
                     allZones.add(river.lake());
-                }
             }
         }
         return allZones;

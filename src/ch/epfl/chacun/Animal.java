@@ -2,10 +2,13 @@ package ch.epfl.chacun;
 
 
 /**
- * @author Othmane HOUSNI (375072)
- * @author Hamza ZOUBAYRI (361522)
  * Represents an animal with a unique identifier and a specific kind.
  * This record encapsulates the properties of an animal in the game, including its identification number and type.
+ * @author Othmane HOUSNI (375072)
+ * @author Hamza ZOUBAYRI (361522)
+
+ * @param id the unique identifier of the animal.
+ * @param kind the kind of animal.
  */
 public record Animal(int id, Kind kind) {
 
@@ -24,6 +27,7 @@ public record Animal(int id, Kind kind) {
      * Enumerates the different kinds of animals that can exist.
      * Each kind represents a distinct type of animal in the game world.
      */
+
     public enum Kind {
         MAMMOTH,
         AUROCHS,
@@ -31,3 +35,4 @@ public record Animal(int id, Kind kind) {
         TIGER,
     }
 }
+

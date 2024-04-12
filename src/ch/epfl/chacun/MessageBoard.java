@@ -3,9 +3,17 @@ package ch.epfl.chacun;
 import java.util.*;
 
 /**
- *
+ Represents the message board in a game of ChaCuN. This board is responsible for displaying messages
+ * and scores throughout the game, keeping track of all game events that affect scoring and significant
+ * game milestones.
+ * The MessageBoard manages a list of messages, each of can reflect points scored due to actions like closing forests or rivers,
+ * placing special tiles like hunting traps or logboats, or other game events that result in scoring updates. Provides
+ * feedback and historical tracking of game progress and player achievements.
  * @author Othmane HOUSNI (375072)
  * @author Hamza ZOUBAYRI (361522)
+ *
+ * @param textMaker The object responsible for generating the text of various messages.
+ * @param messages The list of messages displayed on the board, from the oldest to the most recent.
  */
 
 public record MessageBoard (TextMaker textMaker, List<Message> messages) {
@@ -50,7 +58,17 @@ public record MessageBoard (TextMaker textMaker, List<Message> messages) {
         messages = List.copyOf(messages);
         }
 
-    //
+    /**
+     * Computes a map from animal kinds to their counts in a given set of animals.
+     * This method tallies each type of animal (e.g., MAMMOTH, AUROCHS, DEER) and
+     * produces a map that associates each animal kind with the number of its occurrences
+     * in the provided set.
+     *
+     * @param animals A set of {@link Animal} objects to be counted.
+     * @return A {@link Map} with keys of type {@link Animal.Kind} representing the type of animal,
+     *         and values representing the count of each animal kind in the input set.
+     */
+
     private Map<Animal.Kind, Integer> getAnimalMap(Set<Animal> animals) {
         Map<Animal.Kind, Integer> animalCounts = new HashMap<>();
         for (Animal animal : animals) {
@@ -59,12 +77,21 @@ public record MessageBoard (TextMaker textMaker, List<Message> messages) {
         return animalCounts;
     }
 
+    /**
+     * Calculates the total points for a map of animals where the keys are the kinds of animals
+     * and the values are the counts of each kind. The points are computed based on a scoring
+     * system defined in the {@link Points} class, which assigns different point values
+     * to different kinds of animals (e.g., MAMMOTH, AUROCHS, DEER).
+     *
+     * @param animals A {@link Map} of {@link Animal.Kind} to Integer, where each key is an animal type
+     *                and each value is the count of that type.
+     * @return An integer representing the total points calculated for the given animal counts.
+     */
     private int getAnimalPoint(Map<Animal.Kind, Integer> animals) {
         return Points.forMeadow(animals.getOrDefault(Animal.Kind.MAMMOTH, 0),
                 animals.getOrDefault(Animal.Kind.AUROCHS, 0),
                 animals.getOrDefault(Animal.Kind.DEER, 0));
     }
-
 
     /**
      * Calculates and returns a map of total points associated with each player based on the messages.
@@ -81,7 +108,6 @@ public record MessageBoard (TextMaker textMaker, List<Message> messages) {
         }
         return pointsMap;
     }
-
 
     /**
      * Adds a new message to the board related to scoring in a forest area.
@@ -127,10 +153,8 @@ public record MessageBoard (TextMaker textMaker, List<Message> messages) {
                     Set.of(),
                     forest.tileIds());
 
-
         List<Message> newMessages = new ArrayList<>(messages);
         newMessages.add(scoredMessage);
-
 
         return new MessageBoard (textMaker, newMessages);
     }
@@ -141,6 +165,7 @@ public record MessageBoard (TextMaker textMaker, List<Message> messages) {
      * @param river The river area being scored.
      * @return A new {@code MessageBoard} instance including the new message, or the original instance if the river isn't occupied.
      */
+
     public MessageBoard withScoredRiver(Area<Zone.River> river){
         if(river.majorityOccupants().isEmpty()) {
             return this;
@@ -173,10 +198,12 @@ public record MessageBoard (TextMaker textMaker, List<Message> messages) {
      * @param adjacentMeadow The meadow adjacent to the hunting trap.
      * @return A new {@code MessageBoard} instance including the new message if points were scored; otherwise, the original instance.
      */
+
     public MessageBoard withScoredHuntingTrap(PlayerColor scorer, Area<Zone.Meadow> adjacentMeadow) {
         Set<Animal> animalSet = Area.animals(adjacentMeadow, Set.of());
         Map<Animal.Kind, Integer> animalMap = getAnimalMap(animalSet);
         int points = getAnimalPoint(animalMap);
+
         if (points <= 0) {
             return this;
         } else {
@@ -191,10 +218,8 @@ public record MessageBoard (TextMaker textMaker, List<Message> messages) {
                     Set.of(scorer),
                     adjacentMeadow.tileIds());
 
-
             List<Message> newMessages = new ArrayList<>(messages);
             newMessages.add(scoredMessage);
-
 
             return new MessageBoard (textMaker, newMessages);
         }
@@ -364,7 +389,6 @@ public record MessageBoard (TextMaker textMaker, List<Message> messages) {
      * @return A new {@code MessageBoard} instance including the winners' announcement message.
      */
     public MessageBoard withWinners(Set<PlayerColor> winners, int points){
-        //Preconditions.checkArgument(!winners.isEmpty());
         String scoredText = textMaker.playersWon(
                 winners,
                 points);
@@ -375,10 +399,8 @@ public record MessageBoard (TextMaker textMaker, List<Message> messages) {
                 Set.of(),
                 Set.of());
 
-
         List<Message> newMessages = new ArrayList<>(messages);
         newMessages.add(scoredMessage);
-
 
         return new MessageBoard (textMaker, newMessages);
 

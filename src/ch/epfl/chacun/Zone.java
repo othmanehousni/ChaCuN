@@ -3,9 +3,9 @@ package ch.epfl.chacun;
 import java.util.List;
 
 /**
+ * Represents a zone in the game world, with various implementations for different types of zones.
  * @author Othmane HOUSNI (375072)
  * @author Hamza Zoubayri (361522)
- * Represents a zone in the game world, with various implementations for different types of zones.
  */
 public sealed interface Zone {
 
@@ -34,6 +34,7 @@ public sealed interface Zone {
      *
      * @return the unique identifier of the zone.
      */
+
      int id();
 
     /**
@@ -94,7 +95,6 @@ public sealed interface Zone {
          */
         public enum Kind {
             PLAIN,
-
             WITH_MENHIR,
             WITH_MUSHROOMS
         }

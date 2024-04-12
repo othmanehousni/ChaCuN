@@ -1,10 +1,15 @@
 package ch.epfl.chacun;
 
 /**
- * @author Othmane HOUSNI (375072)
- * @author Hamza ZOUBAYRI (361522)
  * Represents the group of four zone partitions in the game, encompassing forests, meadows, rivers, and water systems.
  * This record holds the partitions for different types of zones, allowing for operations across the game's landscape.
+ * @author Othmane HOUSNI (375072)
+ * @author Hamza ZOUBAYRI (361522)
+ *
+ * @param forests The partition of forest areas.
+ * @param meadows The partition of meadow areas.
+ * @param rivers The partition of river areas.
+ * @param riverSystems The partition of water systems, including lakes and rivers.
  */
 public record ZonePartitions(ZonePartition<Zone.Forest> forests, ZonePartition<Zone.Meadow> meadows,
                              ZonePartition<Zone.River> rivers, ZonePartition<Zone.Water> riverSystems) {
@@ -21,10 +26,10 @@ public record ZonePartitions(ZonePartition<Zone.Forest> forests, ZonePartition<Z
      */
 
     final public static class Builder {
-        private final ZonePartition.Builder<Zone.Forest> forestBuilder;
-        private final ZonePartition.Builder<Zone.Meadow> meadowBuilder;
-        private final ZonePartition.Builder<Zone.River> riverBuilder;
-        private final ZonePartition.Builder<Zone.Water> riverSystemsBuilder;
+        private ZonePartition.Builder<Zone.Forest> forestBuilder;
+        private ZonePartition.Builder<Zone.Meadow> meadowBuilder;
+        private ZonePartition.Builder<Zone.River> riverBuilder;
+        private ZonePartition.Builder<Zone.Water> riverSystemsBuilder;
 
         /**
          * Constructs a new builder initialized with the partitions from an existing {@code ZonePartitions} instance.
@@ -86,19 +91,19 @@ public record ZonePartitions(ZonePartition<Zone.Forest> forests, ZonePartition<Z
          * Connects two tile sides, merging their corresponding areas in the relevant partition if necessary.
          * Throws an IllegalArgumentException if the tile sides are not of the same kind.
          *
-         * @param s1 The first tile side to connect.
-         * @param s2 The second tile side to connect.
+         * @param side1 The first tile side to connect.
+         * @param side2 The second tile side to connect.
          */
-        public void connectSides(TileSide s1, TileSide s2) {
-            switch (s1) {
+
+        public void connectSides(TileSide side1, TileSide side2) {
+            switch (side1) {
                 case TileSide.Forest(Zone.Forest forest1)
-                        when s2 instanceof TileSide.Forest(Zone.Forest forest2) -> forestBuilder.union(forest1, forest2);
+                        when side2 instanceof TileSide.Forest(Zone.Forest forest2) -> forestBuilder.union(forest1, forest2);
                 case TileSide.Meadow(Zone.Meadow meadow1)
-                        when s2 instanceof TileSide.Meadow(Zone.Meadow meadow2) -> meadowBuilder.union(meadow1, meadow2);
+                        when side2 instanceof TileSide.Meadow(Zone.Meadow meadow2) -> meadowBuilder.union(meadow1, meadow2);
                 case TileSide.River(Zone.Meadow meadow1, Zone.River river1, Zone.Meadow meadow1_1)
-                        when s2 instanceof TileSide.River(
-                        Zone.Meadow meadow2, Zone.River river2, Zone.Meadow meadow2_2
-                ) -> {
+                        when side2 instanceof TileSide.River(
+                        Zone.Meadow meadow2, Zone.River river2, Zone.Meadow meadow2_2) -> {
                     meadowBuilder.union(meadow1, meadow2_2);
                     riverBuilder.union(river1, river2);
                     meadowBuilder.union(meadow1_1, meadow2);
@@ -110,7 +115,7 @@ public record ZonePartitions(ZonePartition<Zone.Forest> forests, ZonePartition<Z
 
         /**
          * Adds an initial occupant of a given kind belonging to a specified player to the area containing a specific zone.
-         * Throws an IllegalArgumentException if the occupant kind cannot occupy the zone type.
+         * @throws IllegalArgumentException if the occupant kind cannot occupy the zone type.
          *
          * @param player       The player to whom the occupant belongs.
          * @param occupantKind The kind of the occupant.
@@ -133,7 +138,7 @@ public record ZonePartitions(ZonePartition<Zone.Forest> forests, ZonePartition<Z
 
         /**
          * Removes a pawn belonging to a specified player from the area containing a given zone.
-         * Throws an IllegalArgumentException if the zone is a lake, as lakes cannot have pawns.
+         * @throws IllegalArgumentException if the zone is a lake, as lakes cannot have pawns.
          *
          * @param player       The player whose pawn is to be removed.
          * @param occupiedZone The zone from which to remove the pawn.

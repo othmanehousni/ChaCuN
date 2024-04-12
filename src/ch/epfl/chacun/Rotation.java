@@ -3,9 +3,9 @@ package ch.epfl.chacun;
 import java.util.List;
 
 /**
+ * Represents and enumerates the possible rotations that can be applied to an object in a two-dimensional space.
  * @author Othmane HOUSNI (375072)
  * @author Hamza Zoubayri (361522)
- * Represents and enumerates the possible rotations that can be applied to an object in a two-dimensional space.
  */
 public enum Rotation {
     NONE,
@@ -16,10 +16,11 @@ public enum Rotation {
     /**
      * A list of all possible rotations.
      */
+
     public static final List<Rotation> ALL = List.of(Rotation.values());
 
     /**
-     * The count of all possible directions. (equivalent to the max ordinal/index of the Enum)
+     * The count of all possible directions. (equivalent to the size of the List of all rotations)
      */
     public static final int COUNT = ALL.size();
 
@@ -37,7 +38,6 @@ public enum Rotation {
 
     /**
      * Returns the negated (opposite) rotation of this rotation.
-     *
      * @return The negated rotation.
      */
     public Rotation negated() {
@@ -47,7 +47,6 @@ public enum Rotation {
 
     /**
      * Returns the number of quarter turns clockwise that this rotation represents.
-     *
      * @return The number of quarter turns clockwise.
      */
     public int quarterTurnsCW() {
@@ -56,7 +55,6 @@ public enum Rotation {
 
     /**
      * Returns the number of degrees clockwise that this rotation represents.
-     *
      * @return The number of degrees clockwise.
      */
     public int degreesCW() {

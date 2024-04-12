@@ -6,19 +6,23 @@ import java.util.Objects;
 import java.util.Set;
 
 /**
- * @author Othmane HOUSNI (375072)
- * @author Hamza ZOUBAYRI (361522)
  * Represents a tile that has been placed on the board.
  * It encapsulates information about the tile, its placement, rotation, and any occupant it might have.
+ * @author Othmane HOUSNI (375072)
+ * @author Hamza ZOUBAYRI (361522)
+ * @param tile The tile being placed.
+ * @param placer The player placing the tile, or {@code null} for the starting tile.
+ * @param rotation The rotation applied to the tile upon placement.
+ * @param pos The position where the tile is placed.
+ * @param occupant The occupant placed on the tile, or {@code null} if there is none.
  */
 public record PlacedTile(Tile tile, PlayerColor placer, Rotation rotation, Pos pos, Occupant occupant) {
 
-
     /**
      * Validates the non-null arguments and initializes a new {@code PlacedTile}.
-     *
      * @throws NullPointerException if {@code tile}, {@code rotation}, or {@code pos} is {@code null}.
      */
+
     public PlacedTile {
         Objects.requireNonNull(tile);
         Objects.requireNonNull(rotation);
@@ -34,13 +38,13 @@ public record PlacedTile(Tile tile, PlayerColor placer, Rotation rotation, Pos p
      * @param rotation The rotation applied to the tile upon placement.
      * @param pos      The position where the tile is placed.
      */
+
     public PlacedTile(Tile tile, PlayerColor placer, Rotation rotation, Pos pos) {
         this(tile, placer, rotation, pos, null);
     }
 
     /**
      * Returns the identifier of the placed tile.
-     *
      * @return the ID of the tile.
      */
     public int id() {
@@ -49,20 +53,18 @@ public record PlacedTile(Tile tile, PlayerColor placer, Rotation rotation, Pos p
 
     /**
      * Returns the kind of the placed tile.
-     *
      * @return the kind of the tile.
      */
     public Tile.Kind kind() {
         return tile.kind();
     }
 
-
     /**
      * Returns the side of the tile in the given direction, considering the applied rotation.
-     *
      * @param direction The direction in which to find the tile side.
      * @return the tile side in the specified direction.
      */
+
     public TileSide side(Direction direction) {
         return tile.sides().get((direction.rotated(rotation.negated())).ordinal());
     }
@@ -74,6 +76,7 @@ public record PlacedTile(Tile tile, PlayerColor placer, Rotation rotation, Pos p
      * @return the zone with the given ID.
      * @throws IllegalArgumentException if there is no zone with the specified ID on the tile.
      */
+
     public Zone zoneWithId(int id) {
         for (Zone zones : tile.zones()) {
             if (zones.id() == id) {
@@ -85,7 +88,6 @@ public record PlacedTile(Tile tile, PlayerColor placer, Rotation rotation, Pos p
 
     /**
      * Returns the zone with a special power on the tile, if any.
-     *
      * @return the zone with a special power, or {@code null} if there isn't one.
      */
     public Zone specialPowerZone() {
@@ -147,7 +149,6 @@ public record PlacedTile(Tile tile, PlayerColor placer, Rotation rotation, Pos p
      * Returns the set of all potential occupants for the tile, or an empty set if the tile is the starting tile.
      *
      * @return a set of potential occupants.
-     * @throws IllegalArgumentException if the tile is the starting tile (placer is {@code null}).
      */
     public Set<Occupant> potentialOccupants() {
         Set<Occupant> potentialOccupants = new HashSet<>();

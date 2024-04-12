@@ -19,6 +19,7 @@ public record ZonePartition <Z extends Zone> (Set <Area<Z>> areas) {
     /**
      * Initializes a {@code ZonePartition} with a set of areas, ensuring immutability.
      */
+
     public ZonePartition {
         areas = Set.copyOf(areas);
     }
@@ -47,12 +48,12 @@ public record ZonePartition <Z extends Zone> (Set <Area<Z>> areas) {
         throw new IllegalArgumentException();
     }
 
-
     /**
      * A builder class for {@code ZonePartition}, allowing for incremental construction of a zone partition.
      *
      * @param <Z> The type of zones, bound by {@link Zone}.
      */
+
     public final static class Builder<Z extends Zone> {
 
         private final Set<Area<Z>> areas;
@@ -65,6 +66,7 @@ public record ZonePartition <Z extends Zone> (Set <Area<Z>> areas) {
         public Builder(ZonePartition<Z> zonePartition) {
             this.areas = new HashSet<>(zonePartition.areas());
         }
+
 
         private Area<Z> areaContaining(Z zone, Set<Area<Z>> areas) {
             for (Area<Z> area : areas) {
@@ -120,6 +122,7 @@ public record ZonePartition <Z extends Zone> (Set <Area<Z>> areas) {
          * @param area The area to remove all occupants from.
          * @throws IllegalArgumentException if the area is not part of the partition.
          */
+
         public void removeAllOccupantsOf(Area<Z> area) {
             Preconditions.checkArgument(areas.contains(area));
             Area <Z> newArea = area.withoutOccupants();
@@ -138,19 +141,19 @@ public record ZonePartition <Z extends Zone> (Set <Area<Z>> areas) {
             Area<Z> Area1 = areaContaining(zone1, areas);
             Area<Z> Area2 = areaContaining(zone2, areas);
             areas.add(Area1.connectTo(Area2));
-            if(!Area1.equals(Area2)){
+            if(Area1 != (Area2)){
                 areas.remove(Area1);
                 areas.remove(Area2);
             } else {
                 areas.remove(Area1);
             }
-
         }
         /**
          * Builds and returns the {@code ZonePartition} from the current state of the builder.
          *
          * @return The constructed {@code ZonePartition}.
          */
+
         public ZonePartition<Z> build() {
             return new ZonePartition<>(areas);
         }

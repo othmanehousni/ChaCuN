@@ -34,11 +34,14 @@ public sealed interface TileSide {
      * Represents a forest tile side with a single forest zone.
      */
      record Forest(Zone.Forest forest) implements TileSide {
-        public List<Zone> zones() {
+
+         @Override
+         public List<Zone> zones() {
             return List.of(forest);
         }
 
-        public boolean isSameKindAs(TileSide that) {
+         @Override
+         public boolean isSameKindAs(TileSide that) {
             return that instanceof Forest;
         }
     }
@@ -47,6 +50,7 @@ public sealed interface TileSide {
      * Represents a meadow tile side with a single meadow zone.
      */
      record Meadow(Zone.Meadow meadow) implements TileSide {
+
         @Override
         public List<Zone> zones() {
             return List.of(meadow);
@@ -63,6 +67,7 @@ public sealed interface TileSide {
      * The order of the meadow zones is significant and follows the clockwise traversal of the tile.
      */
      record River(Zone.Meadow meadow1, Zone.River river, Zone.Meadow meadow2) implements TileSide {
+
         @Override
         public List<Zone> zones() {
             return List.of(meadow1, river, meadow2);

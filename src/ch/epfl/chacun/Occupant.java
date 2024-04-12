@@ -3,10 +3,14 @@ package ch.epfl.chacun;
 import java.util.Objects;
 
 /**
+ * Represents an occupant within a specific zone, characterized by its kind and the zone's ID.
  * @author Othmane HOUSNI (375072)
  * @author Hamza ZOUBAYRI (361522)
- * Represents an occupant within a specific zone, characterized by its kind and the zone's ID.
+ *
+ * @param kind The kind of the occupant.
+ * @param zoneId The ID of the zone where the occupant is located.
  */
+
 public record Occupant(Kind kind, int zoneId) {
 
     /**
@@ -20,9 +24,7 @@ public record Occupant(Kind kind, int zoneId) {
      */
     public Occupant {
         Objects.requireNonNull(kind);
-        if (zoneId < 0) {
-            throw new IllegalArgumentException();
-        }
+        Preconditions.checkArgument(zoneId >= 0);
     }
 
     /**

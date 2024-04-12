@@ -1,15 +1,19 @@
 package ch.epfl.chacun;
 
 /**
+ * Represents a position in a two-dimensional space with x and y coordinates.
  * @author Othmane HOUSNI (375072)
  * @author Hamza Zoubayri (361522)
- * Represents a position in a two-dimensional space with x and y coordinates.
+ *
+ * @param x The x-coordinate of the position.
+ * @param y The y-coordinate of the position.
  */
 public record Pos(int x, int y) {
 
     /**
      * A constant holding the origin position (0, 0).
      */
+
     public static final Pos ORIGIN = new Pos(0, 0);
 
 

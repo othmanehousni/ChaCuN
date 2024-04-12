@@ -1,10 +1,10 @@
 package ch.epfl.chacun;
 
 /**
- * @author Othmane HOUSNI (375072)
- * @author Hamza Zoubayri (361522)
  * Utility class for calculating points based on various game elements such as forests, rivers, meadows, and more.
  * This class cannot be instantiated.
+ * @author Othmane HOUSNI (375072)
+ * @author Hamza Zoubayri (361522)
  */
 
 public final class Points {
@@ -12,9 +12,9 @@ public final class Points {
     /**
      * Private constructor to prevent instantiation of utility class and messing with the point calculation.
      */
+
     private Points() {
     }
-
 
     /**
      * Calculates points for a closed forest.
