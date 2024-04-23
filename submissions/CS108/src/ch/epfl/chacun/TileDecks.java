@@ -74,6 +74,7 @@ public record TileDecks(List<Tile> startTiles, List<Tile> normalTiles, List<Tile
                  new TileDecks(newList2, normalTiles, menhirTiles);
             case Tile.Kind.NORMAL ->
                  new TileDecks(startTiles, newList2, menhirTiles);
+
             case Tile.Kind.MENHIR ->
                  new TileDecks(startTiles, normalTiles, newList2);
         };
