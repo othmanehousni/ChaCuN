@@ -5,7 +5,9 @@ import ch.epfl.chacun.Occupant;
 import javafx.scene.Node;
 import javafx.scene.shape.SVGPath;
 
-public abstract class Icon {
+public final class Icon {
+    private Icon() {
+    }
 
     public static Node newFor(PlayerColor playerColor, Occupant.Kind occupantKind) {
         SVGPath svgPath = new SVGPath();

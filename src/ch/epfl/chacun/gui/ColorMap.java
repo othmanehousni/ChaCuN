@@ -2,7 +2,10 @@ package ch.epfl.chacun.gui;
 
 import ch.epfl.chacun.*;
 
-public abstract class ColorMap {
+public final class ColorMap {
+
+    private ColorMap() {
+    }
 
     public static javafx.scene.paint.Color fillColor(PlayerColor playerColor) {
         return switch (playerColor) {

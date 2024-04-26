@@ -10,7 +10,7 @@ import javafx.scene.text.TextFlow;
 
 import java.util.Map;
 
-public class PlayersUI {
+public final class PlayersUI {
 
     private PlayersUI() {}
 
@@ -23,12 +23,12 @@ public class PlayersUI {
 
         ObservableValue<Map<PlayerColor, Integer>> map = gameStateObservable.map(gameState -> gameState.messageBoard().points());
         Text playerText = new Text();
-        playerText.textProperty().bind(map.map(pointsPlayer -> STR."\{textMaker.playerName(playerColor)} : \{textMaker.points(pointsPlayer.getOrDefault(playerColor, 0))}"));
+        playerText.textProperty().bind(map.map(pointsPlayer -> STR."\{textMaker.playerName(playerColor)} : \{textMaker.points(pointsPlayer.getOrDefault(playerColor, 0))}\n"));
 
-        Text spaceText = new Text("   ");
+        Text spaceText3 = new Text("   ");
+        Text spaceText1 = new Text(" ");
 
-        playerInfo.getChildren().addAll(playerCircle, playerText, spaceText);
-
+        playerInfo.getChildren().addAll(playerCircle, spaceText1, playerText, spaceText3);
 
         for (Occupant.Kind kind : Occupant.Kind.values()) {
             for (int i = 0; i < Occupant.occupantsCount(kind); i++) {
