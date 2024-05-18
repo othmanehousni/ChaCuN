@@ -43,7 +43,7 @@ public final class MyBoardUITest extends Application {
                 new SimpleObjectProperty<>(Set.<Integer>of());
 
         var gameStateO = new SimpleObjectProperty<>(gameState);
-        var boardNode = boardclaquejsp
+        var boardNode = BoardUI
                 .create(1,
                         gameStateO,
                         tileToPlaceRotationP,

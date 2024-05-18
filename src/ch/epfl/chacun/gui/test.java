@@ -9,6 +9,7 @@ import java.util.*;
 import java.util.function.BiFunction;
 
 public final class test {
+
         public static String posIntToStr(int i ){
         if (i < 0) {
             throw new IllegalArgumentException();
@@ -52,7 +53,7 @@ public final class test {
         Set<PlayerColor> setFull = players.keySet();
 
 
-        Map<Animal.Kind, Integer> animalsTres = Map.of(Animal.Kind.MAMMOTH, 1, Animal.Kind.AUROCHS, 2, Animal.Kind.DEER, 3);
+        Map<Animal.Kind, Integer> animalsTres = Map.of(Animal.Kind.MAMMOTH, 1, Animal.Kind.AUROCHS, 2, Animal.Kind.DEER, 3, Animal.Kind.TIGER, 2);
         Map<Animal.Kind, Integer> animalsSolo = Map.of(Animal.Kind.MAMMOTH, 1, Animal.Kind.AUROCHS, 2, Animal.Kind.DEER, 3);
 
 
@@ -164,6 +165,7 @@ public final class test {
 
         System.out.println(strToPosInt("2018"));
         System.out.println((date.charAt(0) - '0') * 1000 + (date.charAt(1) - '0') * 100 + (date.charAt(2) - '0') * 10 + (date.charAt(3) - '0'));
+
 
 
         }

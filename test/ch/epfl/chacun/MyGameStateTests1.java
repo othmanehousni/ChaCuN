@@ -3,7 +3,6 @@ package ch.epfl.chacun;
 import ch.epfl.chacun.*;
 import org.junit.jupiter.api.Test;
 import java.util.*;
-import ch.epfl.chacun.Tiles;
 import static org.junit.jupiter.api.Assertions.*;
 
 
@@ -31,7 +30,7 @@ public class MyGameStateTests1 {
 
         //Création tileDecks
         List<Tile> startTiles = new ArrayList<>();
-        startTiles.add(Tiles.TILES.get(56));
+            startTiles.add(Tiles.TILES.get(56));
 
         List<Tile> normalTiles = new ArrayList<>();
         Collections.addAll(normalTiles,

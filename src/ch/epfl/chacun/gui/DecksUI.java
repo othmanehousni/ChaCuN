@@ -11,8 +11,8 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
+
 import java.util.function.Consumer;
-import ch.epfl.chacun.gui.ColorMap.*;
 
 public final class DecksUI {
 
@@ -20,10 +20,10 @@ public final class DecksUI {
     }
 
     public static Node create(
-            ObservableValue<Tile> nextTileObservable,
-            ObservableValue<Integer> normalTilesCountObservable,
-            ObservableValue<Integer> menhirTilesCountObservable,
-            ObservableValue<String> nextTileTextObservable,
+            ObservableValue<Tile> nextTileO,
+            ObservableValue<Integer> normalTilesCountO,
+            ObservableValue<Integer> menhirTilesCountO,
+            ObservableValue<String> nextTileTextO,
             Consumer<Occupant> onSkipOccupant) {
 
         HBox decks = new HBox();
@@ -31,13 +31,13 @@ public final class DecksUI {
         root.getStylesheets().add("decks.css");
         decks.setId("decks");
 
-        StackPane nextTileStack = createTileToPlace(nextTileObservable, nextTileTextObservable, onSkipOccupant);
+        StackPane nextTileStack = createTileToPlace(nextTileO, nextTileTextO, onSkipOccupant);
 
-        StackPane normalDeckStack = createDeckStack("NORMAL", normalTilesCountObservable);
-        StackPane menhirDeckStack = createDeckStack("MENHIR", menhirTilesCountObservable);
+        StackPane normalDeckStack = createDeckStack("NORMAL", normalTilesCountO);
+        StackPane menhirDeckStack = createDeckStack("MENHIR", menhirTilesCountO);
 
         decks.getChildren().addAll(normalDeckStack, menhirDeckStack);
-        root.getChildren().addAll(nextTileStack, decks);
+        root.getChildren().addAll(decks, nextTileStack);
 
         return root;
     }
@@ -45,8 +45,8 @@ public final class DecksUI {
     private static StackPane createDeckStack(String label, ObservableValue<Integer> tilesCountObservable) {
         ImageView deckView = new ImageView();
 
-        deckView.setFitWidth(ImageLoader.LARGE_TILE_FIT_SIZE);
-        deckView.setFitHeight(ImageLoader.LARGE_TILE_FIT_SIZE);
+        deckView.setFitWidth(ImageLoader.NORMAL_TILE_FIT_SIZE);
+        deckView.setFitHeight(ImageLoader.NORMAL_TILE_FIT_SIZE);
         deckView.setImage(new Image(STR."512/\{label}.jpg"));
 
         Text deckText = new Text();
@@ -59,9 +59,13 @@ public final class DecksUI {
         return deckStack;
     }
 
-    private static StackPane createTileToPlace (ObservableValue<Tile> tileObservableValue,ObservableValue<String> nextTileTextObservable, Consumer<Occupant> onSkipOccupant ) {
+    private static StackPane createTileToPlace (ObservableValue<Tile> tileObservableValue,
+                                                ObservableValue<String> nextTileTextObservable,
+                                                Consumer<Occupant> onSkipOccupant ) {
+
         StackPane nextTileStack = new StackPane();
         nextTileStack.setId("next-tile");
+
 
         ImageView nextTileView = new ImageView();
         Text nextTileText = new Text();
@@ -71,13 +75,16 @@ public final class DecksUI {
         nextTileView.setFitHeight(ImageLoader.LARGE_TILE_FIT_SIZE);
 
         nextTileText.setWrappingWidth(0.8);
-        //nextTileText.wrappingWidthProperty().bind(nextTileView.fitWidthProperty().multiply(0.8));
         nextTileText.textProperty().bind(nextTileTextObservable);
-        nextTileText.visibleProperty().bind(nextTileTextObservable.map(text -> !text.isEmpty()));
+        nextTileText.setWrappingWidth(ImageLoader.LARGE_TILE_FIT_SIZE);
+        nextTileText.visibleProperty().bind(nextTileTextObservable.map(s-> !s.isEmpty()));
 
-        nextTileText.setOnMouseClicked(e -> onSkipOccupant.accept(null));
 
-        nextTileStack.getChildren().addAll(nextTileView, nextTileText);
+        nextTileText.setOnMouseClicked(e -> {
+            onSkipOccupant.accept(null);
+        });
+
+        nextTileStack.getChildren().addAll(nextTileText, nextTileView);
 
         return nextTileStack;
     }

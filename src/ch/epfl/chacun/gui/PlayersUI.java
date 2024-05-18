@@ -20,6 +20,7 @@ public final class PlayersUI {
     private static TextFlow createPlayerInfo(ObservableValue<GameState> gameStateObservable, TextMaker textMaker, PlayerColor playerColor) {
 
         TextFlow playerInfo = new TextFlow();
+        playerInfo.getStyleClass().add("player");
 
         Circle playerCircle = new Circle(5);
         playerCircle.setFill(ColorMap.fillColor(playerColor));
@@ -29,13 +30,12 @@ public final class PlayersUI {
         playerText.textProperty().bind(map.map(pointsPlayer -> STR."\{textMaker.playerName(playerColor)} : \{textMaker.points(pointsPlayer.getOrDefault(playerColor, 0))}\n"));
 
         Text spaceText3 = new Text("   ");
-        Text spaceText1 = new Text(" ");
 
-        TreeSet<Occupant.Kind> reversed = new TreeSet<>(List.of(Occupant.Kind.values()));
+        TreeSet<Occupant.Kind> kindTreeSet = new TreeSet<>(List.of(Occupant.Kind.values()));
         playerInfo.getChildren().addAll(spaceText3,playerCircle);
         playerInfo.getChildren().addAll(playerText);
 
-        for (Occupant.Kind kind : reversed.reversed()) {
+        for (Occupant.Kind kind : kindTreeSet.reversed()) {
             for (int i = 0; i < Occupant.occupantsCount(kind); i++) {
                 int finalI = i;
                 ObservableValue<Integer> freeOccupantCount = gameStateObservable.map(gameState -> gameState.freeOccupantsCount(playerColor,kind));
@@ -45,20 +45,9 @@ public final class PlayersUI {
 
             }
         }
-//        playerInfo.getChildren().addFirst(spaceText3);
-//        playerInfo.getChildren().addFirst(playerText);
-//        playerInfo.getChildren().addFirst(spaceText1);
-//        playerInfo.getChildren().addFirst(playerCircle);
 
-
-
-
-        playerInfo.getStyleClass().add("player");
-
-
-
-        gameStateObservable.addListener((o, oldState, newState) -> {
-            if (newState.currentPlayer() == playerColor) {
+        gameStateObservable.map(GameState::currentPlayer).addListener((_, oldPlayer, newPlayer) -> {
+            if (newPlayer == playerColor) {
                 playerInfo.getStyleClass().add("current");
             } else {
                 playerInfo.getStyleClass().remove("current");
@@ -73,13 +62,12 @@ public final class PlayersUI {
         VBox root = new VBox();
         root.getStylesheets().add("players.css");
         root.setId("players");
-        for (PlayerColor color : PlayerColor.ALL) {
+        List<PlayerColor> playerColors = gameStateObservable.getValue().players();
+        for (PlayerColor color : playerColors) {
             String playerName = textMaker.playerName(color);
-            if (playerName != null) {
-                TextFlow playerInfo = createPlayerInfo(gameStateObservable, textMaker, color);
-                root.getChildren().add(playerInfo);
-                root.setId(STR."\{color.name()}");
-            }
+            TextFlow playerInfo = createPlayerInfo(gameStateObservable, textMaker, color);
+            root.getChildren().add(playerInfo);
+            root.setId(STR."\{color.name()}");
         }
         return root;
     }

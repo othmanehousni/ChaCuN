@@ -101,16 +101,20 @@ public final class TextMakerFr implements TextMaker {
         List<Animal.Kind> animalList = animals.keySet().stream().toList();
         Integer lastNumber = animals.values().stream().toList().getLast();
         String last = animalList.getLast().toString();
+
+        //todo annuler tigers??
+
         if (animals.size() == 1) {
             return animals.keySet().iterator().next().toString();
         } else {
-
             animals.forEach((kind, count) -> {
                 if(kind != animalList.getLast() && count > 0) {
                     sb.append(count).append(" ").append(kind.toString()).append(count > 1 ? "s" : "").append(", ");
                 }
                 });
         }
+
+        //todo creer map <kind, string> pour en francais
 
         sb.append("et ").append(lastNumber).append(" ").append(last).append(lastNumber > 1 ? "s" : "");
         return sb.toString();

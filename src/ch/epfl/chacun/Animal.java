@@ -34,5 +34,7 @@ public record Animal(int id, Kind kind) {
         DEER,
         TIGER,
     }
+
+
 }
 

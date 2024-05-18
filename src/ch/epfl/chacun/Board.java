@@ -392,7 +392,7 @@ public final class Board {
             newZonePartitions.clearFishers(river);
             river.zones().forEach(zone -> {
                 PlacedTile tile = tileWithId(Zone.tileId(zone.id()));
-                if (tile.occupant() != null && tile.occupant().zoneId() == zone.id() && tile.occupant().kind() == Occupant.Kind.PAWN) {
+                if (tile.occupant() != null && tile.occupant().zoneId() == zone.id()) {
                     newPlacedTiles[posToIndex(tile.pos())] = tileWithId(zone.tileId()).withNoOccupant();
                 }
             });

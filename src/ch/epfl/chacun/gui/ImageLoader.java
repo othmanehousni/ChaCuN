@@ -16,14 +16,14 @@ public final class ImageLoader {
     private ImageLoader() {}
 
     public static Image normalImageForTile(int tileId) {
-        String string = tileId < 9 ? "0" + tileId : "" + tileId;
-        return new Image("/256/" + string + ".jpg", NORMAL_TILE_PIXEL_SIZE, NORMAL_TILE_PIXEL_SIZE, true, true);
+        String string = tileId <= 9 ? STR."0\{tileId}" : STR."\{tileId}";
+        return new Image(STR."/256/\{string}.jpg", NORMAL_TILE_PIXEL_SIZE, NORMAL_TILE_PIXEL_SIZE, true, true);
     }
 
     public static Image largeImageForTile(int tileId) {
-        String string = tileId < 9 ? "0" + tileId : "" + tileId;
+        String string = tileId <=9 ? STR."0\{tileId}" : STR."\{tileId}";
 
-        return new Image("/512/" + string + ".jpg", LARGE_TILE_PIXEL_SIZE, LARGE_TILE_PIXEL_SIZE, true, true);
+        return new Image(STR."/512/\{string}.jpg", LARGE_TILE_PIXEL_SIZE, LARGE_TILE_PIXEL_SIZE, true, true);
     }
 }
 

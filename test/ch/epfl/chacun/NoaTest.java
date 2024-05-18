@@ -4,7 +4,6 @@ package ch.epfl.chacun;
 import ch.epfl.chacun.*;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import ch.epfl.chacun.Tiles;
 
 
 import java.util.ArrayList;
