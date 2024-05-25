@@ -34,7 +34,7 @@ public final class BoardUI{
 
         CellData(PlacedTile placedTile, Color color){
             this(CACHE.computeIfAbsent(placedTile.tile().id(),
-                    ImageLoader::largeImageForTile),
+                    ImageLoader::normalImageForTile),
                     placedTile.rotation().degreesCW(), color);
         }
 
@@ -99,8 +99,7 @@ public final class BoardUI{
         ScrollPane boardScrollPane = new ScrollPane();
         boardScrollPane.setId("board-scroll-pane");
         boardScrollPane.getStylesheets().add("board.css");
-        //boardScrollPane.setPrefSize(ImageLoader.LARGE_TILE_FIT_SIZE, ImageLoader.LARGE_TILE_FIT_SIZE);
-        boardScrollPane.setVvalue(0.5); // centrer au milieu ou 56 est placée
+        boardScrollPane.setVvalue(0.5);
         boardScrollPane.setHvalue(0.5);
 
         GridPane boardGrid = new GridPane();
@@ -109,10 +108,7 @@ public final class BoardUI{
 
         for (int x = -scope; x <= scope; x++) {
             for (int y = -scope; y <= scope; y++) {
-
-                //System.out.println(visibleOccupantsO.getValue());
                 Group cellGroup = new Group();
-               // System.out.println(gameStateO.getValue().board().cancelledAnimals());
                 ImageView tileImageView = new ImageView();
                 tileImageView.setFitWidth(ImageLoader.NORMAL_TILE_FIT_SIZE);
                 tileImageView.setFitHeight(ImageLoader.NORMAL_TILE_FIT_SIZE);
@@ -187,9 +183,12 @@ public final class BoardUI{
                         if (event.getButton().equals(MouseButton.PRIMARY)) {
                             PlacedTile tileAtPos = gameStateO.getValue().board().tileAt(currentPos);
                             Tile tileToPlace = gameStateO.getValue().tileToPlace();
+
                             if (tileAtPos == null && fringe.getValue() && tileToPlace != null) {
-                                PlacedTile placedTileToPlace = new PlacedTile(tileToPlace, gameStateO.getValue().currentPlayer(),
+                                PlacedTile placedTileToPlace = new PlacedTile(tileToPlace,
+                                        gameStateO.getValue().currentPlayer(),
                                         tileRotationO.getValue(), currentPos);
+
                                 if (gameStateO.getValue().board().canAddTile(placedTileToPlace)) {
                                     onPlaceTile.accept(currentPos);
                                 }

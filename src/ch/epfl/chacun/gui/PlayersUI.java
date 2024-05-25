@@ -10,10 +10,10 @@ import javafx.scene.text.TextFlow;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
 
 public final class PlayersUI {
+
+    private static final int CIRCLE_RADIUS = 5;
 
     private PlayersUI() {}
 
@@ -21,42 +21,51 @@ public final class PlayersUI {
 
         TextFlow playerInfo = new TextFlow();
         playerInfo.getStyleClass().add("player");
-
-        Circle playerCircle = new Circle(5);
-        playerCircle.setFill(ColorMap.fillColor(playerColor));
-
-        ObservableValue<Map<PlayerColor, Integer>> map = gameStateObservable.map(gameState -> gameState.messageBoard().points());
-        Text playerText = new Text();
-        playerText.textProperty().bind(map.map(pointsPlayer -> STR."\{textMaker.playerName(playerColor)} : \{textMaker.points(pointsPlayer.getOrDefault(playerColor, 0))}\n"));
-
+        Circle playerCircle = new Circle(CIRCLE_RADIUS, ColorMap.fillColor(playerColor));
         Text spaceText3 = new Text("   ");
+        Text spaceText1 = new Text(" ");
+        playerInfo.getChildren().add(playerCircle);
+        ObservableValue<Map<PlayerColor, Integer>> pointsMapO =
+                gameStateObservable.map(gameState -> gameState.messageBoard().points());
+        ObservableValue<PlayerColor> currentPlayerO = gameStateObservable.map(GameState::currentPlayer);
 
-        TreeSet<Occupant.Kind> kindTreeSet = new TreeSet<>(List.of(Occupant.Kind.values()));
-        playerInfo.getChildren().addAll(spaceText3,playerCircle);
-        playerInfo.getChildren().addAll(playerText);
+        Text playerText = new Text();
+        playerText.textProperty().bind(pointsMapO.map(pointsPlayer ->
+                STR."\{textMaker.playerName(playerColor)} : \{
+                        textMaker.points(pointsPlayer.getOrDefault(playerColor, 0))}\n"));
 
-        for (Occupant.Kind kind : kindTreeSet.reversed()) {
+        playerInfo.getChildren().addAll(playerText, spaceText1);
+
+        List<Occupant.Kind> kindList = List.of(Occupant.Kind.values());
+        for (Occupant.Kind kind : kindList.reversed()) {
             for (int i = 0; i < Occupant.occupantsCount(kind); i++) {
                 int finalI = i;
-                ObservableValue<Integer> freeOccupantCount = gameStateObservable.map(gameState -> gameState.freeOccupantsCount(playerColor,kind));
-                Node icon = Icon.newFor(playerColor, kind);
-                icon.opacityProperty().bind(freeOccupantCount.map(integer -> integer > finalI ? 1.0 : 0.1));
-                playerInfo.getChildren().add(icon);
+                ObservableValue<Integer> freeOccupantCount = gameStateObservable.map(
+                        gameState -> gameState.freeOccupantsCount(playerColor, kind));
+                Node occupantIcon = Icon.newFor(playerColor, kind);
+                ObservableValue<Boolean> isOccupantOpaque = freeOccupantCount.map(occupantCount -> occupantCount > finalI);
+                occupantIcon.opacityProperty().bind(isOccupantOpaque.map(visible -> visible ? 1.0 : 0.1));
+                playerInfo.getChildren().add(occupantIcon);
 
+                if (kind == Occupant.Kind.HUT && i == 2) {
+                    playerInfo.getChildren().add(spaceText3);
+                }
             }
         }
 
-        gameStateObservable.map(GameState::currentPlayer).addListener((_, oldPlayer, newPlayer) -> {
+        updatePlayerStyleClass(currentPlayerO, playerInfo, playerColor);
+        return playerInfo;
+    }
+
+    private static void updatePlayerStyleClass (ObservableValue<PlayerColor> currentPlayerO, TextFlow playerInfo, PlayerColor playerColor) {
+        currentPlayerO.addListener((_, _, newPlayer) -> {
             if (newPlayer == playerColor) {
                 playerInfo.getStyleClass().add("current");
             } else {
                 playerInfo.getStyleClass().remove("current");
             }
         });
-
-        return playerInfo;
     }
-
 
     public static Node create(ObservableValue<GameState> gameStateObservable, TextMaker textMaker) {
         VBox root = new VBox();
@@ -64,10 +73,8 @@ public final class PlayersUI {
         root.setId("players");
         List<PlayerColor> playerColors = gameStateObservable.getValue().players();
         for (PlayerColor color : playerColors) {
-            String playerName = textMaker.playerName(color);
             TextFlow playerInfo = createPlayerInfo(gameStateObservable, textMaker, color);
             root.getChildren().add(playerInfo);
-            root.setId(STR."\{color.name()}");
         }
         return root;
     }

@@ -2,6 +2,7 @@ package ch.epfl.chacun.gui;
 
 import ch.epfl.chacun.*;
 import javafx.application.Application;
+import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.Node;
@@ -12,16 +13,32 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.function.UnaryOperator;
 import java.util.random.RandomGenerator;
 import java.util.random.RandomGeneratorFactory;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class Main extends Application {
+
+    private static <T> void setProperty(UnaryOperator<T> operator, ObjectProperty<T> property) {
+        property.setValue(operator.apply(property.getValue()));
+    }
+
+    private void updateActionsAndSetState(SimpleObjectProperty<List<String>> actionsListP,
+                                          ActionEncoder.StateAction stateAction, SimpleObjectProperty<GameState> gameStateP) {
+
+        setProperty(list-> {
+            List<String> newStrList = new ArrayList<>(list);
+            newStrList.add(stateAction.action());
+           return newStrList;
+        }, actionsListP);
+        gameStateP.setValue(stateAction.state());
+    }
+
+
     @Override
     public void start(Stage primaryStage) throws Exception {
-
-
         Parameters parameters = getParameters();
         List<String> unNamed = parameters.getUnnamed();
         Map<String, String> named = parameters.getNamed();
@@ -32,11 +49,7 @@ public class Main extends Application {
         }
         List<PlayerColor> playerColorsList = new ArrayList<>(playerColors.keySet());
 
-        long seed = new Random().nextLong();
-        if (named.containsKey("seed")) {
-            seed = Long.parseUnsignedLong(named.get("seed"));
-        }
-
+        long seed = named.containsKey("seed") ? Long.parseUnsignedLong(named.get("seed")) : new Random().nextLong();
         RandomGenerator generator = RandomGeneratorFactory.getDefault().create(seed);
         List<Tile> tilesToShuffle = new ArrayList<>(Tiles.TILES);
         Collections.shuffle(tilesToShuffle, generator);
@@ -56,19 +69,15 @@ public class Main extends Application {
                         tileDecks,
                         textMaker);
 
-
-
         List<String> actionsList = new ArrayList<>();
         SimpleObjectProperty<List<String>> actionsListP = new SimpleObjectProperty<>(actionsList);
-        SimpleObjectProperty<GameState> gameStateO = new SimpleObjectProperty<>(gameState);
+        SimpleObjectProperty<GameState> gameStateP = new SimpleObjectProperty<>(gameState);
         SimpleObjectProperty<Rotation> tileToPlaceRotationP =
                 new SimpleObjectProperty<>(Rotation.NONE);
-        SimpleObjectProperty<Set<Integer>> highlightedTilesP = new SimpleObjectProperty<>();
 
+        Node playersNode = PlayersUI.create(gameStateP, textMaker);
 
-        Node playersNode = PlayersUI.create(gameStateO, textMaker);
-
-        ObservableValue<Set<Occupant>> allOccupantsO = gameStateO.map(g-> {
+        ObservableValue<Set<Occupant>> allOccupantsO = gameStateP.map(g-> {
             Set<Occupant> visibleOccupants = new HashSet<>();
             if (g.board().lastPlacedTile() != null && g.nextAction() == GameState.Action.OCCUPY_TILE) {
                 visibleOccupants.addAll(Stream.concat(g.board().occupants().stream(),
@@ -80,10 +89,11 @@ public class Main extends Application {
         });
 
 
-        ObservableValue<Tile> nextTileO = gameStateO.map(GameState::tileToPlace);
-        ObservableValue<Integer> remainingNormalO = gameStateO.map(g-> g.tileDecks().normalTiles().size());
-        ObservableValue<Integer> remainingMenhirO = gameStateO.map(g-> g.tileDecks().menhirTiles().size());
-        ObservableValue<String> TileTextO = gameStateO.map(g -> {
+        ObservableValue<Tile> nextTileO = gameStateP.map(GameState::tileToPlace);
+        ObservableValue<Integer> remainingNormalO = gameStateP.map(g-> g.tileDecks().normalTiles().size());
+        ObservableValue<Integer> remainingMenhirO = gameStateP.map(g-> g.tileDecks().menhirTiles().size());
+
+        ObservableValue<String> TileTextO = gameStateP.map(g -> {
             if (g.nextAction() == GameState.Action.OCCUPY_TILE) {
                 return textMaker.clickToOccupy();
             } else if (g.nextAction() == GameState.Action.RETAKE_PAWN) {
@@ -93,61 +103,49 @@ public class Main extends Application {
             }
         });
 
-        ObservableValue<List<MessageBoard.Message>> messagesListO = gameStateO
+        ObservableValue<List<MessageBoard.Message>> messagesListO = gameStateP
                 .map(GameState::messageBoard)
                 .map(MessageBoard::messages);
-        List<MessageBoard.Message> messageList = gameStateO.getValue().messageBoard().messages();
-        Set<Integer> tileSet = new HashSet<>();
-        messageList.forEach(message -> tileSet.addAll(message.tileIds()));
-        highlightedTilesP.set(tileSet);
 
+        SimpleObjectProperty<Set<Integer>> highlightedTilesP = new SimpleObjectProperty<>(Set.of());
         Node messageBoardNode = MessageBoardUI.create(messagesListO, highlightedTilesP);
 
+        Consumer <Rotation> onRotateTile = rotation -> setProperty(rotation::add,tileToPlaceRotationP);
 
-        Consumer <Rotation> onRotateTile = r -> tileToPlaceRotationP.set(tileToPlaceRotationP.getValue().add(r));
-        Consumer <Pos> onPlaceTile = t -> {
-            PlacedTile placedTile = new PlacedTile(gameStateO.get().tileToPlace(), gameStateO.get().currentPlayer(),
-                    tileToPlaceRotationP.getValue(), t);
-            ActionEncoder.StateAction stateAction = ActionEncoder.withPlacedTile(gameStateO.getValue(), placedTile);
-            List<String> newStrList = new ArrayList<>(actionsList);
-            newStrList.add(stateAction.action());
-            actionsList.add(stateAction.action());
-            actionsListP.set(newStrList);
-            gameStateO.setValue(stateAction.state());
+        Consumer <Pos> onPlaceTile = tile -> {
+            GameState currentGameState = gameStateP.getValue();
+            PlacedTile placedTile = new PlacedTile(currentGameState.tileToPlace(),
+                    currentGameState.currentPlayer(),
+                    tileToPlaceRotationP.getValue(), tile);
+            ActionEncoder.StateAction stateAction = ActionEncoder.withPlacedTile(currentGameState, placedTile);
+            updateActionsAndSetState(actionsListP, stateAction, gameStateP);
+            tileToPlaceRotationP.set(Rotation.NONE);
         };
 
-        Consumer <Occupant> onSelectOccupant = o -> {
-            int id = o == null ? -1 : Zone.tileId(o.zoneId());
-            switch (gameStateO.getValue().nextAction()) {
+        Consumer <Occupant> onSelectOccupant = occupant -> {
+            int id = occupant == null ? -1 : Zone.tileId(occupant.zoneId());
+            switch (gameStateP.getValue().nextAction()) {
                 case OCCUPY_TILE -> {
-                    if (o == null || gameStateO.getValue().board().lastPlacedTile().id() == id) {
-                        ActionEncoder.StateAction stateAction = ActionEncoder.withNewOccupant(gameStateO.getValue(), o);
-                        List<String> newStrList = new ArrayList<>(actionsList);
-                        newStrList.add(stateAction.action());
-                        actionsList.add(stateAction.action());
-                        actionsListP.set(newStrList);
-                        gameStateO.setValue(stateAction.state());
+                    if (occupant == null || gameStateP.getValue().board().lastPlacedTile().id() == id) {
+                        ActionEncoder.StateAction stateAction = ActionEncoder.withNewOccupant(gameStateP.getValue(), occupant);
+                        updateActionsAndSetState(actionsListP, stateAction, gameStateP);
                     }
                 }
                 case RETAKE_PAWN -> {
-                    if (o == null || o.kind() == Occupant.Kind.PAWN
-                            && gameStateO.getValue().board().tileWithId(id).placer() == gameStateO.get().currentPlayer()) {
-                        ActionEncoder.StateAction stateAction = ActionEncoder.withOccupantRemoved(gameStateO.getValue(), o);
-                        List<String> newStrList = new ArrayList<>(actionsList);
-                        newStrList.add(stateAction.action());
-                        actionsList.add(stateAction.action());
-                        actionsListP.set(newStrList);
-                        gameStateO.setValue(stateAction.state());
+                    if (occupant == null || occupant.kind() == Occupant.Kind.PAWN
+                            && gameStateP.getValue().board().tileWithId(id).placer() == gameStateP.get().currentPlayer()) {
+                        ActionEncoder.StateAction stateAction = ActionEncoder.withOccupantRemoved(gameStateP.getValue(), occupant);
+                        updateActionsAndSetState(actionsListP, stateAction, gameStateP);
                     }
                 }
-
             }
-
         };
 
+
+
         Node boardNode = BoardUI
-                .create(6,
-                        gameStateO,
+                .create(Board.REACH,
+                        gameStateP,
                         tileToPlaceRotationP,
                         allOccupantsO,
                         highlightedTilesP,
@@ -155,20 +153,19 @@ public class Main extends Application {
                         onPlaceTile,
                         onSelectOccupant);
 
-
         ScrollPane messageBoardPane = new ScrollPane(messageBoardNode);
         messageBoardPane.setFitToHeight(true);
         messageBoardPane.setFitToWidth(true);
 
-        Consumer<String> onAction = s -> {
-            ActionEncoder.StateAction action = ActionEncoder.decodeAndApply(gameStateO.getValue(), s);
+        Consumer<String> onAction = textEntry -> {
+            ActionEncoder.StateAction action = ActionEncoder.decodeAndApply(gameStateP.getValue(), textEntry);
             if(action != null) {
-                gameStateO.set(action.state());
+                updateActionsAndSetState(actionsListP, action, gameStateP);
             }
         };
 
         Node deckNode = DecksUI.create(nextTileO, remainingNormalO, remainingMenhirO, TileTextO, onSelectOccupant);
-        Node actions = ActionsUI.create(actionsListP, onAction);
+        Node actions = ActionUI.create(actionsListP, onAction);
 
         VBox deckActionVbox = new VBox();
         deckActionVbox.getChildren().addAll(actions, deckNode) ;
@@ -178,13 +175,13 @@ public class Main extends Application {
         paneRight.setTop(playersNode);
         paneRight.setCenter(messageBoardPane);
 
-        BorderPane mainPaneLeft = new BorderPane();
-        mainPaneLeft.setCenter(boardNode);
-        mainPaneLeft.setRight(paneRight);
+        BorderPane mainPane = new BorderPane();
+        mainPane.setCenter(boardNode);
+        mainPane.setRight(paneRight);
 
-        gameStateO.set(gameStateO.get().withStartingTilePlaced());
+        setProperty(GameState::withStartingTilePlaced,gameStateP);
 
-        primaryStage.setScene(new Scene(mainPaneLeft, 1440, 1000));
+        primaryStage.setScene(new Scene(mainPane, 1440, 1000));
         primaryStage.setTitle("ChaCuN");
         primaryStage.show();
     }

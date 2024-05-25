@@ -10,10 +10,12 @@ import javafx.util.converter.DefaultStringConverter;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
-public final class ActionsUI {
+public final class ActionUI {
 
-    private ActionsUI() {}
+    private final static int MAX_ACTIONS = 4;
+    private ActionUI() {}
 
     public static HBox create(ObservableValue<List<String>> actionO, Consumer<String> actionValidation) {
         HBox hbox = new HBox();
@@ -21,13 +23,11 @@ public final class ActionsUI {
         hbox.setId("actions");
 
         Text text = new Text();
-        text.textProperty().bind(actionO.map(list -> {
-            StringJoiner joiner = new StringJoiner(", ");
-            for (int i = Math.max(0, list.size()-4); i < list.size(); i++) {
-                joiner.add(STR."\{i+1} : \{list.get(i)}");
-            }
-            return joiner.toString();
-        }));
+        text.textProperty().bind(actionO.map(list ->
+                IntStream.range(Math.max(0, list.size() - MAX_ACTIONS), list.size())
+                .mapToObj(i -> STR."\{i + 1} : \{list.get(i)}")
+                .collect(Collectors.joining(", "))));
+
 
         TextField textField = new TextField();
         textField.setId("action-field");

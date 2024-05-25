@@ -3,10 +3,18 @@ package ch.epfl.chacun.gui;
 import ch.epfl.chacun.Animal;
 import ch.epfl.chacun.PlayerColor;
 import ch.epfl.chacun.TextMakerFr;
+import javafx.beans.Observable;
+import javafx.beans.binding.Bindings;
+import javafx.beans.property.SimpleListProperty;
+import javafx.beans.property.SimpleMapProperty;
+import javafx.collections.ObservableList;
+import javafx.collections.ObservableMap;
 import jdk.swing.interop.SwingInterOpUtils;
 
 import java.util.*;
 import java.util.function.BiFunction;
+
+import static javafx.collections.FXCollections.observableArrayList;
 
 public final class test {
 
@@ -166,7 +174,16 @@ public final class test {
         System.out.println(strToPosInt("2018"));
         System.out.println((date.charAt(0) - '0') * 1000 + (date.charAt(1) - '0') * 100 + (date.charAt(2) - '0') * 10 + (date.charAt(3) - '0'));
 
+        System.out.println(String.valueOf((char) 1));
 
-
-        }
+        Map<String,String> set = new HashMap<>();
+        System.out.println(Integer.parseInt("1"));
+        System.out.println(String.format("x= %s", 10));
+        List<String> list = new ArrayList<>();
+        list.add("a");
+        ObservableList<String> list2 = observableArrayList();
+        list2.add("a");
+        ObservableMap<String, String> map = new SimpleMapProperty<>();
+        System.out.println(map.get(Bindings.valueAt(list2,0).get()));
+     }
     }

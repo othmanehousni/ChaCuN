@@ -199,8 +199,8 @@ public record MessageBoard (TextMaker textMaker, List<Message> messages) {
      * @return A new {@code MessageBoard} instance including the new message if points were scored; otherwise, the original instance.
      */
 
-    public MessageBoard withScoredHuntingTrap(PlayerColor scorer, Area<Zone.Meadow> adjacentMeadow) {
-        Set<Animal> animalSet = Area.animals(adjacentMeadow, Set.of());
+    public MessageBoard withScoredHuntingTrap(PlayerColor scorer, Area<Zone.Meadow> adjacentMeadow, Set<Animal> cancelledAnimals) {
+        Set<Animal> animalSet = Area.animals(adjacentMeadow, cancelledAnimals);
         Map<Animal.Kind, Integer> animalMap = getAnimalMap(animalSet);
         int points = getAnimalPoint(animalMap);
 

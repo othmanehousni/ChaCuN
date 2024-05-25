@@ -6,9 +6,7 @@ import javafx.scene.Node;
 import javafx.scene.shape.SVGPath;
 
 public final class Icon {
-    private Icon() {
-    }
-
+    private Icon() {}
     public static Node newFor(PlayerColor playerColor, Occupant.Kind occupantKind) {
         SVGPath svgPath = new SVGPath();
         switch (occupantKind) {
@@ -17,7 +15,6 @@ public final class Icon {
                         "L 6 -10 L 0 -10 L -2 -4 L -6 -2 L -8 -10 L -12 -10 L -8 6 Z");
             case HUT ->
                 svgPath.setContent("M -8 10 H 8 V 2 H 12 L 0 -10 L -12 2 H -8 Z");
-
         }
         svgPath.setFill(ColorMap.fillColor(playerColor));
         svgPath.setStroke(ColorMap.strokeColor(playerColor));

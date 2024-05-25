@@ -69,9 +69,9 @@ public final class Board {
      * @throws IllegalArgumentException If no tile with the given ID is found on the board.
      */
     public PlacedTile tileWithId(int tileId) {
-        for (PlacedTile placedTile : placedTiles) {
-            if (placedTile != null && placedTile.id() == tileId) {
-                return placedTile;
+        for(int index : tileIndex) {
+            if(placedTiles[index].id() == tileId) {
+                return placedTiles[index];
             }
         }
         throw new IllegalArgumentException();
