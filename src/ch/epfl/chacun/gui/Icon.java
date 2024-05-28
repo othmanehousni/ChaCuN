@@ -5,8 +5,25 @@ import ch.epfl.chacun.Occupant;
 import javafx.scene.Node;
 import javafx.scene.shape.SVGPath;
 
-public final class Icon {
+/**
+ * The Icon class is a public, non-instantiable class that provides
+ * JavaFX nodes representing the occupants of different players.
+ * @author Othmane HOUSNI (375072)
+ * @author Hamza ZOUBAYRI (361522)
+ */
+ public final class Icon {
+    /**
+     * Private constructor to prevent instantiation.
+     */
     private Icon() {}
+
+    /**
+     * Creates a new JavaFX node representing an occupant of a player.
+     *
+     * @param playerColor the color of the player
+     * @param occupantKind the kind of the occupant
+     * @return a new {@code SVGPath} instance representing the occupant
+     */
     public static Node newFor(PlayerColor playerColor, Occupant.Kind occupantKind) {
         SVGPath svgPath = new SVGPath();
         switch (occupantKind) {

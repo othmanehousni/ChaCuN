@@ -18,15 +18,18 @@ import java.util.random.RandomGenerator;
 import java.util.random.RandomGeneratorFactory;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import ch.epfl.chacun.ActionEncoder.StateAction;
 
-public class Main extends Application {
 
+public final class Main extends Application {
+
+    //todo handler? consumer??
     private static <T> void setProperty(UnaryOperator<T> operator, ObjectProperty<T> property) {
         property.setValue(operator.apply(property.getValue()));
     }
 
     private void updateActionsAndSetState(SimpleObjectProperty<List<String>> actionsListP,
-                                          ActionEncoder.StateAction stateAction, SimpleObjectProperty<GameState> gameStateP) {
+                                          StateAction stateAction, SimpleObjectProperty<GameState> gameStateP) {
 
         setProperty(list-> {
             List<String> newStrList = new ArrayList<>(list);
@@ -59,7 +62,7 @@ public class Main extends Application {
 
         TileDecks tileDecks =
                 new TileDecks(tilesByKind.get(Tile.Kind.START),
-                        tilesByKind.get(Tile.Kind.NORMAL),
+                        tilesByKind.get(Tile.Kind.MENHIR),
                         tilesByKind.get(Tile.Kind.MENHIR));
 
         TextMakerFr textMaker = new TextMakerFr(playerColors);
@@ -69,8 +72,7 @@ public class Main extends Application {
                         tileDecks,
                         textMaker);
 
-        List<String> actionsList = new ArrayList<>();
-        SimpleObjectProperty<List<String>> actionsListP = new SimpleObjectProperty<>(actionsList);
+
         SimpleObjectProperty<GameState> gameStateP = new SimpleObjectProperty<>(gameState);
         SimpleObjectProperty<Rotation> tileToPlaceRotationP =
                 new SimpleObjectProperty<>(Rotation.NONE);
@@ -87,7 +89,6 @@ public class Main extends Application {
             }
             return visibleOccupants;
         });
-
 
         ObservableValue<Tile> nextTileO = gameStateP.map(GameState::tileToPlace);
         ObservableValue<Integer> remainingNormalO = gameStateP.map(g-> g.tileDecks().normalTiles().size());
@@ -112,12 +113,15 @@ public class Main extends Application {
 
         Consumer <Rotation> onRotateTile = rotation -> setProperty(rotation::add,tileToPlaceRotationP);
 
+        List<String> actionsList = new ArrayList<>();
+        SimpleObjectProperty<List<String>> actionsListP = new SimpleObjectProperty<>(actionsList);
+
         Consumer <Pos> onPlaceTile = tile -> {
             GameState currentGameState = gameStateP.getValue();
             PlacedTile placedTile = new PlacedTile(currentGameState.tileToPlace(),
                     currentGameState.currentPlayer(),
                     tileToPlaceRotationP.getValue(), tile);
-            ActionEncoder.StateAction stateAction = ActionEncoder.withPlacedTile(currentGameState, placedTile);
+            StateAction stateAction = ActionEncoder.withPlacedTile(currentGameState, placedTile);
             updateActionsAndSetState(actionsListP, stateAction, gameStateP);
             tileToPlaceRotationP.set(Rotation.NONE);
         };
@@ -127,21 +131,19 @@ public class Main extends Application {
             switch (gameStateP.getValue().nextAction()) {
                 case OCCUPY_TILE -> {
                     if (occupant == null || gameStateP.getValue().board().lastPlacedTile().id() == id) {
-                        ActionEncoder.StateAction stateAction = ActionEncoder.withNewOccupant(gameStateP.getValue(), occupant);
+                        StateAction stateAction = ActionEncoder.withNewOccupant(gameStateP.getValue(), occupant);
                         updateActionsAndSetState(actionsListP, stateAction, gameStateP);
                     }
                 }
                 case RETAKE_PAWN -> {
                     if (occupant == null || occupant.kind() == Occupant.Kind.PAWN
                             && gameStateP.getValue().board().tileWithId(id).placer() == gameStateP.get().currentPlayer()) {
-                        ActionEncoder.StateAction stateAction = ActionEncoder.withOccupantRemoved(gameStateP.getValue(), occupant);
+                        StateAction stateAction = ActionEncoder.withOccupantRemoved(gameStateP.getValue(), occupant);
                         updateActionsAndSetState(actionsListP, stateAction, gameStateP);
                     }
                 }
             }
         };
-
-
 
         Node boardNode = BoardUI
                 .create(Board.REACH,
@@ -161,6 +163,7 @@ public class Main extends Application {
             ActionEncoder.StateAction action = ActionEncoder.decodeAndApply(gameStateP.getValue(), textEntry);
             if(action != null) {
                 updateActionsAndSetState(actionsListP, action, gameStateP);
+                tileToPlaceRotationP.set(Rotation.NONE);
             }
         };
 

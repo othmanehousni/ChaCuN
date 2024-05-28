@@ -14,8 +14,16 @@ import javafx.scene.text.Text;
 
 import java.util.function.Consumer;
 
+/**
+ * The DecksUI class is a public, non-instantiable class that contains the code
+ * for creating the part of the graphical user interface that displays the tile decks as well as the tile to place,
+ * and allows the player to skip placing an occupant.
+ * @author Othmane HOUSNI (375072)
+ * @author Hamza ZOUBAYRI (361522)
+ */
 public final class DecksUI {
 
+    //todo check l'afficHage nombre jsp
     private final static double WRAPPING_PERCENTAGE = 0.8;
 
     private DecksUI() {
@@ -33,6 +41,7 @@ public final class DecksUI {
         root.getStylesheets().add("decks.css");
         decks.setId("decks");
 
+        // Create the decks and the next tile to place as stack panes
         StackPane nextTileStack = createTileToPlace(nextTileO, nextTileTextO, onSkipOccupant);
         StackPane normalDeckStack = createDeckStack("NORMAL", normalTilesCountO);
         StackPane menhirDeckStack = createDeckStack("MENHIR", menhirTilesCountO);
@@ -42,7 +51,7 @@ public final class DecksUI {
         return root;
     }
 
-    private static StackPane createDeckStack(String label, ObservableValue<Integer> tilesCountObservable) {
+    private static StackPane createDeckStack(String label, ObservableValue<Integer> tilesCountO) {
         ImageView deckView = new ImageView();
 
         deckView.setFitWidth(ImageLoader.NORMAL_TILE_FIT_SIZE);
@@ -50,8 +59,11 @@ public final class DecksUI {
         deckView.setImage(new Image(STR."\{ImageLoader.LARGE_TILE_PIXEL_SIZE}/\{label}.jpg"));
 
         Text deckText = new Text();
-        deckText.textProperty().bind(Bindings.convert(tilesCountObservable));
-        deckText.visibleProperty().bind(tilesCountObservable.map(count -> count > 0));
+        // Bind the text of the deck to the number of tiles in the deck
+        deckText.textProperty().bind(Bindings.convert(tilesCountO));
+
+        // Make the text visible only if there are tiles in the deck
+        deckText.visibleProperty().bind(tilesCountO.map(count -> count >= 0));
 
         StackPane deckStack = new StackPane(deckView, deckText);
         deckStack.setId(label);
@@ -67,15 +79,19 @@ public final class DecksUI {
         ImageView nextTileView = new ImageView();
         Text nextTileText = new Text();
 
+        // Bind the image of the next tile to place to the tile observable in 512 x 512 pixels
         nextTileView.imageProperty().bind(tileObservableValue.map(tile -> ImageLoader.largeImageForTile(tile.id())));
         nextTileView.setFitWidth(ImageLoader.LARGE_TILE_FIT_SIZE);
         nextTileView.setFitHeight(ImageLoader.LARGE_TILE_FIT_SIZE);
-
         nextTileText.setWrappingWidth(WRAPPING_PERCENTAGE * ImageLoader.LARGE_TILE_FIT_SIZE);
+
+        // Bind the text of the next tile to place to the text observable
         nextTileText.textProperty().bind(nextTileTextObservable);
-        nextTileText.setWrappingWidth(ImageLoader.LARGE_TILE_FIT_SIZE);
+        // Make the text visible only if it is not empty
         nextTileText.visibleProperty().bind(nextTileTextObservable.map(s -> !s.isEmpty()));
+        // Skip the occupant when the next tile is clicked
         nextTileText.setOnMouseClicked(_ -> onSkipOccupant.accept(null));
+
         nextTileStack.getChildren().addAll(nextTileText, nextTileView);
         return nextTileStack;
     }

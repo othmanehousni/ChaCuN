@@ -2,19 +2,15 @@ package ch.epfl.chacun.gui;
 
 import ch.epfl.chacun.*;
 import javafx.application.Application;
-import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.Scene;
-import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 import java.util.*;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 
@@ -203,7 +199,7 @@ public final class HousniBoardUITest extends Application {
 
         ObservableValue<List<String>> obsStrList = gameState0.map(g -> Collections.singletonList(g.nextAction().toString()));
         Base32.decode(obsStrList.getValue().getFirst());
-        var actions = ActionsUI.create(obsStrList, o-> System.out.println("action: " + o));
+        var actions = ActionUI.create(obsStrList, o-> System.out.println("action: " + o));
         var vboxdeckAndActions = new VBox();
         vboxdeckAndActions.getChildren().addAll(actions, deck);
         paneRight.setBottom(vboxdeckAndActions);

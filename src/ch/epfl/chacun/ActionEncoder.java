@@ -1,6 +1,4 @@
-package ch.epfl.chacun.gui;
-
-import ch.epfl.chacun.*;
+package ch.epfl.chacun;
 
 import java.util.Collection;
 import java.util.Comparator;
@@ -17,11 +15,8 @@ public final class ActionEncoder {
     private ActionEncoder() {
     }
 
-    public record StateAction(GameState state, String action) {
-    }
-
+    public record StateAction(GameState state, String action) {}
     private final static int MAX_FRINGE_INDEX = 190;
-    private final static int MAX_ROTATION_INDEX = 4;
 
     private static <T> List<T> sortCollection(Collection<T> collection, Comparator<? super T> comparator) {
         return collection.stream()
@@ -83,8 +78,7 @@ public final class ActionEncoder {
                 List<Pos> fringePositions = sortedFringePositions(state);
                 int fringeIndex = actionValue >> 2;
                 int rotation = actionValue & Base32.BINARY3;
-                if (fringeIndex < 0 || fringeIndex > fringePositions.size()) throw new InvalidException();
-                if(fringeIndex >= MAX_FRINGE_INDEX || rotation >= MAX_ROTATION_INDEX) throw new InvalidException();
+                if (fringeIndex < 0 || fringeIndex >= fringePositions.size() || fringeIndex >= MAX_FRINGE_INDEX) throw new InvalidException();
                 PlacedTile placedTile = new PlacedTile(state.tileToPlace(), state.currentPlayer(), Rotation.values()[rotation], fringePositions.get(fringeIndex));
                 if (!state.board().canAddTile(placedTile)) throw new InvalidException();
                 yield state.withPlacedTile(placedTile);
@@ -94,7 +88,7 @@ public final class ActionEncoder {
                 if (actionString.length() != 1) throw new InvalidException();
                 int actionValue = Base32.decode(actionString);
                 if (actionValue == Base32.NO_OCCUPANT_BINARY31) yield state.withNewOccupant(null);
-                int zoneIndex = actionValue & 0xF; //nbr magique
+                int zoneIndex = actionValue & Base32.MASK4FIRST;
                 int occupantType = (actionValue >> 4);
                 Occupant.Kind kind = Occupant.Kind.values()[occupantType];
                 Occupant occupant = state.lastTilePotentialOccupants().stream()
@@ -118,7 +112,6 @@ public final class ActionEncoder {
                     throw new InvalidException();
                 }
                 yield state.withOccupantRemoved(occupant);
-
             }
             case START_GAME, END_GAME:
                 throw new InvalidException();
@@ -126,7 +119,6 @@ public final class ActionEncoder {
 
         return new StateAction(finalState, actionString);
     }
-
 
     public static StateAction decodeAndApply(GameState state, String actionString) {
         try {

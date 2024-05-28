@@ -1,8 +1,7 @@
 package ch.epfl.chacun.gui;
 
+import ch.epfl.chacun.Base32;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 class Base32Test {
 

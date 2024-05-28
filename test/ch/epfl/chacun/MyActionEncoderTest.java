@@ -1,8 +1,5 @@
 package ch.epfl.chacun;
 
-import ch.epfl.chacun.*;
-import ch.epfl.chacun.gui.ActionEncoder;
-import ch.epfl.chacun.gui.Base32;
 import org.junit.jupiter.api.Test;
 
 import java.util.*;
