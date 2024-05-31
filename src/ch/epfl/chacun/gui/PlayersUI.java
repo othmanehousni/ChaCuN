@@ -37,7 +37,8 @@ public final class PlayersUI {
      * @param playerColor the color of the player
      * @return a TextFlow node containing the player's information
      */
-    private static TextFlow createPlayerInfo(ObservableValue<GameState> gameStateObservable, TextMaker textMaker, PlayerColor playerColor) {
+    private static TextFlow createPlayerInfo(ObservableValue<GameState> gameStateObservable,
+                                             TextMaker textMaker, PlayerColor playerColor) {
 
         TextFlow playerInfo = new TextFlow();
         playerInfo.getStyleClass().add("player");
@@ -67,14 +68,15 @@ public final class PlayersUI {
         // the list is reversed due to the order of the icons in the game that is reversed in the enum
         for (Occupant.Kind kind : kindList.reversed()) {
             for (int i = 0; i < Occupant.occupantsCount(kind); i++) {
-                int finalI = i;
+                int currentI = i;
                 // creating the observable value for the free occupants count to show the remaining occupants
                 ObservableValue<Integer> freeOccupantCount = gameStateObservable.map(
                         gameState -> gameState.freeOccupantsCount(playerColor, kind));
                 Node occupantIcon = Icon.newFor(playerColor, kind);
                 // binding the opacity of the occupant icon to the freeOccupantCount,
                 // making it opaque if there are remaining occupants
-                ObservableValue<Boolean> isOccupantOpaque = freeOccupantCount.map(occupantCount -> occupantCount > finalI);
+                ObservableValue<Boolean> isOccupantOpaque = freeOccupantCount.map(
+                        occupantCount -> occupantCount > currentI);
                 occupantIcon.opacityProperty().bind(isOccupantOpaque.map(visible -> visible ? 1.0 : 0.1));
                 playerInfo.getChildren().add(occupantIcon);
 
@@ -97,7 +99,8 @@ public final class PlayersUI {
      * @param playerInfo the TextFlow node containing the player's information
      * @param playerColor the color of the player
      */
-    private static void updatePlayerStyleClass (ObservableValue<PlayerColor> currentPlayerO, TextFlow playerInfo, PlayerColor playerColor) {
+    private static void updatePlayerStyleClass (ObservableValue<PlayerColor> currentPlayerO,
+                                                TextFlow playerInfo, PlayerColor playerColor) {
         currentPlayerO.addListener((_, _, newPlayer) -> {
             if (newPlayer == playerColor) {
                 playerInfo.getStyleClass().add("current");

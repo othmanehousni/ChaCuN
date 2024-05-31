@@ -100,7 +100,10 @@ import java.util.function.Consumer;
                     image.setFitHeight(ImageLoader.MARKER_FIT_SIZE);
                     image.setId(STR."marker_\{animal.id()}");
                     image.getStyleClass().add("marker");
-                     image.visibleProperty().bind(cancelledAnimals.map(cancelledA -> cancelledA.contains(animal)));
+                    // note that due to the fact that we modified the Hunting Trap case, the cancelled animals that
+                    // are caused by placing this trap and the only ones that are shown during the game.
+                    // The remaining cancelled animals are shown at the end of the game.
+                    image.visibleProperty().bind(cancelledAnimals.map(cancelledA -> cancelledA.contains(animal)));
                     nodeList.add(image);
         });
         return nodeList;
@@ -124,7 +127,7 @@ import java.util.function.Consumer;
             //creating the icon for the occupant
             Node node = Icon.newFor(placedTile.placer(), occupant.kind());
             node.setId(STR."\{occupant.kind().name().toLowerCase()}_\{occupant.zoneId()}");
-            //keeping it from following the tile's rotation, this keeping it straight
+            //keeping it from following the tile's rotation, thus keeping it straight
             node.setRotate(placedTile.rotation().negated().degreesCW());
             // its visibility is based on the visible occupants given by the main
             node.visibleProperty().bind(visibleOccupantsO.map(occupants -> occupants.contains(occupant)));

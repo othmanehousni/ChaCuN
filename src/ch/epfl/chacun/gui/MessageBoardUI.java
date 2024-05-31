@@ -11,6 +11,8 @@ import javafx.scene.text.Text;
 import java.util.List;
 import java.util.Set;
 
+//todo wrapping jsp quoi et voir les index de sublist
+
 /**
  * The MessageBoardUI class is a public, non-instantiable class that contains the code
  * for creating the graphical user interface for the message board
@@ -31,7 +33,8 @@ public final class MessageBoardUI {
      * @param highlightedTilesObservable a property containing the set of tile IDs to highlight on the board
      * @return the root node of the scene graph
      */
-    public static Node create(ObservableValue<List<MessageBoard.Message>> messagesObservable, ObjectProperty<Set<Integer>> highlightedTilesObservable) {
+    public static Node create(ObservableValue<List<MessageBoard.Message>> messagesObservable,
+                              ObjectProperty<Set<Integer>> highlightedTilesObservable) {
 
         ScrollPane messageScrollPane = new ScrollPane();
         messageScrollPane.setId("message-board");
@@ -41,6 +44,7 @@ public final class MessageBoardUI {
 
         // Update the messages displayed in the message board
         messagesObservable.addListener((_, oldMessages, newMessages) -> {
+            System.out.println(newMessages);
             updateMessages(messagesContainer, oldMessages, newMessages, highlightedTilesObservable);
             messageScrollPane.layout();
             messageScrollPane.setVvalue(1);
@@ -56,7 +60,10 @@ public final class MessageBoardUI {
      * @param newMessages the new list of messages
      * @param selectedTiles the property containing the set of tile IDs to highlight
      */
-    private static void updateMessages(VBox messagesContainer, List<MessageBoard.Message> oldMessages, List<MessageBoard.Message> newMessages, ObjectProperty<Set<Integer>> selectedTiles) {
+    private static void updateMessages(VBox messagesContainer, List<MessageBoard.Message> oldMessages,
+                                       List<MessageBoard.Message> newMessages,
+                                       ObjectProperty<Set<Integer>> selectedTiles) {
+
         if (newMessages.size() > oldMessages.size()) { // If there are new messages
             // Add the new messages to the message container
             List<MessageBoard.Message> additionalMessages = newMessages.subList(oldMessages.size(), newMessages.size());

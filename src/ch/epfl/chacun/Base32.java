@@ -1,6 +1,8 @@
 package ch.epfl.chacun;
 
 public class Base32 {
+
+    //todo verifier to uppercase derniere ligne
     /**
      * The Base32 alphabet.
      */

@@ -8,12 +8,9 @@ import java.util.stream.Collectors;
 
 public final class ActionEncoder {
 
-    private static final class InvalidException extends Exception {
-    }
+    private static final class InvalidException extends Exception { }
 
-
-    private ActionEncoder() {
-    }
+    private ActionEncoder() {}
 
     public record StateAction(GameState state, String action) {}
     private final static int MAX_FRINGE_INDEX = 190;
@@ -79,7 +76,8 @@ public final class ActionEncoder {
                 int fringeIndex = actionValue >> 2;
                 int rotation = actionValue & Base32.BINARY3;
                 if (fringeIndex < 0 || fringeIndex >= fringePositions.size() || fringeIndex >= MAX_FRINGE_INDEX) throw new InvalidException();
-                PlacedTile placedTile = new PlacedTile(state.tileToPlace(), state.currentPlayer(), Rotation.values()[rotation], fringePositions.get(fringeIndex));
+                PlacedTile placedTile = new PlacedTile(state.tileToPlace(), state.currentPlayer(),
+                        Rotation.values()[rotation], fringePositions.get(fringeIndex));
                 if (!state.board().canAddTile(placedTile)) throw new InvalidException();
                 yield state.withPlacedTile(placedTile);
             }
@@ -102,11 +100,11 @@ public final class ActionEncoder {
 
             case RETAKE_PAWN: {
                 if(actionString.length() != 1) throw new InvalidException();
-                int zoneIndex = Base32.decode(actionString);
-                if (zoneIndex == Base32.NO_OCCUPANT_BINARY31) yield state.withOccupantRemoved(null);
+                int occupantIndex = Base32.decode(actionString);
+                if (occupantIndex == Base32.NO_OCCUPANT_BINARY31) yield state.withOccupantRemoved(null);
                 List<Occupant> occupants = sortedOccupants(state);
-                if (zoneIndex < 0 || zoneIndex > occupants.size()) throw new InvalidException();
-                Occupant occupant = occupants.get(zoneIndex);
+                if (occupantIndex < 0 || occupantIndex > occupants.size()) throw new InvalidException();
+                Occupant occupant = occupants.get(occupantIndex);
                 if (state.board().lastPlacedTile() == null
                         || state.board().lastPlacedTile().placer() != state.currentPlayer()) {
                     throw new InvalidException();

@@ -14,6 +14,8 @@ import javafx.scene.text.Text;
 
 import java.util.function.Consumer;
 
+//todo check le setid label
+
 /**
  * The DecksUI class is a public, non-instantiable class that contains the code
  * for creating the part of the graphical user interface that displays the tile decks as well as the tile to place,
@@ -56,14 +58,11 @@ public final class DecksUI {
 
         deckView.setFitWidth(ImageLoader.NORMAL_TILE_FIT_SIZE);
         deckView.setFitHeight(ImageLoader.NORMAL_TILE_FIT_SIZE);
-        deckView.setImage(new Image(STR."\{ImageLoader.LARGE_TILE_PIXEL_SIZE}/\{label}.jpg"));
+        deckView.setId(label);
 
         Text deckText = new Text();
         // Bind the text of the deck to the number of tiles in the deck
         deckText.textProperty().bind(Bindings.convert(tilesCountO));
-
-        // Make the text visible only if there are tiles in the deck
-        deckText.visibleProperty().bind(tilesCountO.map(count -> count >= 0));
 
         StackPane deckStack = new StackPane(deckView, deckText);
         deckStack.setId(label);
