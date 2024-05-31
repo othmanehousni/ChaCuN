@@ -1,8 +1,13 @@
 package ch.epfl.chacun;
 
-public class Base32 {
+/** The Base32 class is a public, non-instantiable class that contains the code
+ * for encoding and decoding Base32 strings.
+ * @author Othmane HOUSNI (375072)
+ * @author Hamza ZOUBAYRI (361522)
+ */
 
-    //todo verifier to uppercase derniere ligne
+public final class Base32 {
+
     /**
      * The Base32 alphabet.
      */
@@ -81,7 +86,7 @@ public class Base32 {
         int result = 0;
         for (char c : input.toCharArray()) {
             result <<= 5;
-            result |= ALPHABET.indexOf(Character.toUpperCase(c));
+            result |= ALPHABET.indexOf(c);
         }
         return result;
     }

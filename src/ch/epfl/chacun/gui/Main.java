@@ -20,11 +20,12 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import ch.epfl.chacun.ActionEncoder.StateAction;
 
-//todo handler? consumer??
 
 /**
  * The Main class is the entry point of the ChaCuN application. It extends the JavaFX Application class
  * and sets up the graphical user interface (GUI) for the game.
+ * @author Othmane HOUSNI (375072)
+ * @author Hamza ZOUBAYRI (361522)
  */
 public final class Main extends Application {
 
@@ -109,7 +110,7 @@ public final class Main extends Application {
         Node playersNode = PlayersUI.create(gameStateP, textMaker);
 
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//====================================================================================================================
 
         // Create the observable value for all occupants. There are two possibilities :
         // - the only occupants that must be shown are the ones that were placed earlier, they appear most of the time.
@@ -139,7 +140,7 @@ public final class Main extends Application {
         //CREATION OF THE MESSAGE BOARD
         Node messageBoardNode = MessageBoardUI.create(messagesListO, highlightedTilesP);
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//====================================================================================================================
 
         // Create the observable encoded list of actions that will be updated accordingly to the players' actions.
         List<String> actionsList = new ArrayList<>();
@@ -202,7 +203,7 @@ public final class Main extends Application {
                         allOccupantsO, highlightedTilesP,
                         onRotateTile, onPlaceTile, onSelectOccupant);
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//====================================================================================================================
 
         Consumer<String> onAction = textEntry -> {
             ActionEncoder.StateAction action = ActionEncoder.decodeAndApply(gameStateP.getValue(), textEntry);
@@ -214,7 +215,7 @@ public final class Main extends Application {
 
         Node actionsNode = ActionUI.create(actionsListP, onAction);
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//====================================================================================================================
 
         // observing the next tile to place in order to update the shown tile on the deck
         ObservableValue<Tile> nextTileO = gameStateP.map(GameState::tileToPlace);
@@ -235,7 +236,7 @@ public final class Main extends Application {
         //CREATION OF THE DECK AND THE TILE TO PLACE
         Node deckNode = DecksUI.create(nextTileO, remainingNormalO, remainingMenhirO, TileTextO, onSelectOccupant);
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//====================================================================================================================
 
         // putting the deck and the deck and the text field/shown encoded actions in a single vbox in order to put it in
         // the pane that regroups the player list, the actions, the message board and the decks/tile to place

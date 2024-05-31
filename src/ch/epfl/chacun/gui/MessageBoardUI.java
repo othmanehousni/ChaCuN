@@ -11,7 +11,7 @@ import javafx.scene.text.Text;
 import java.util.List;
 import java.util.Set;
 
-//todo wrapping jsp quoi et voir les index de sublist
+
 
 /**
  * The MessageBoardUI class is a public, non-instantiable class that contains the code

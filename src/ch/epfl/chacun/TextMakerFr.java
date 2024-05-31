@@ -3,7 +3,12 @@ package ch.epfl.chacun;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
+/**
+ * The TextMakerFr class is a public class that implements the TextMaker interface.
+ * It contains the code for generating text in French for the game.
+ * @author Othmane HOUSNI (375072)
+ * @author Hamza ZOUBAYRI (361522)
+ */
 public final class TextMakerFr implements TextMaker {
 
     /** Map associating player names with their colors */

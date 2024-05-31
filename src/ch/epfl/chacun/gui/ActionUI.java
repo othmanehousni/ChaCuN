@@ -14,6 +14,8 @@ import java.util.stream.IntStream;
 /**
  * The ActionUI class is a public, non-instantiable class that contains the code
  * for creating the part of the graphical user interface that displays and validates actions input by the user.
+ * @author Othmane HOUSNI (375072)
+ * @author Hamza ZOUBAYRI (361522)
  */
  public final class ActionUI {
 
@@ -55,7 +57,8 @@ import java.util.stream.IntStream;
             return change;
         }));
 
-        textField.lengthProperty().addListener((observable, oldValue, newValue) -> {
+        // Limit the text field to 2 characters
+        textField.lengthProperty().addListener((_, _, newValue) -> {
             if (newValue.intValue() > 2) {
                 textField.setText(textField.getText().substring(0, 2));
             }

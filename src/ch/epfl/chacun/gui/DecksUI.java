@@ -5,7 +5,6 @@ import ch.epfl.chacun.Tile;
 import javafx.beans.binding.Bindings;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.Node;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
@@ -13,8 +12,6 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 
 import java.util.function.Consumer;
-
-//todo check le setid label
 
 /**
  * The DecksUI class is a public, non-instantiable class that contains the code
@@ -25,7 +22,6 @@ import java.util.function.Consumer;
  */
 public final class DecksUI {
 
-    //todo check l'afficHage nombre jsp
     private final static double WRAPPING_PERCENTAGE = 0.8;
 
     private DecksUI() {
